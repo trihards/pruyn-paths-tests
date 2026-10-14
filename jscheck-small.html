@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pruyn Paths phone check (SMALL (no big photos))</title>
+<style>
+:root{--bg:#fbf6ea;--ink:#2a2118;--card:#ffffff;--line:#e3d9c3;--ok:#14663a;--okbg:#e3f4e8;--bad:#a8231b;--badbg:#fbe4e1;--wait:#7a5c00;--waitbg:#fff3cf;--info:#2d4a6b;--infobg:#e6eef7}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1a15;--ink:#f3ecdc;--card:#2a261f;--line:#4a4336;--ok:#7fe0a3;--okbg:#17392a;--bad:#ff9d94;--badbg:#431c18;--wait:#ffd76a;--waitbg:#3d3210;--info:#a9c8ee;--infobg:#1d2f45}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;padding:16px 16px calc(84px + env(safe-area-inset-bottom)) 16px}
+h1{font-size:28px;line-height:1.15;margin:4px 0 6px}
+h2{font-size:22px;margin:26px 0 8px}
+p{margin:8px 0}
+.sub{font-size:16px;opacity:.85}
+.banner{padding:14px 16px;border-radius:14px;font-weight:700;font-size:20px;margin:14px 0}
+.bad{background:var(--badbg);color:var(--bad);border:2px solid var(--bad)}
+.good{background:var(--okbg);color:var(--ok);border:2px solid var(--ok)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}
+.row{display:flex;gap:10px;align-items:flex-start}
+.tag{flex:0 0 auto;min-width:84px;text-align:center;font-weight:800;font-size:15px;letter-spacing:.04em;padding:4px 8px;border-radius:999px}
+.t-pass{background:var(--okbg);color:var(--ok);border:2px solid var(--ok)}
+.t-fail{background:var(--badbg);color:var(--bad);border:2px solid var(--bad)}
+.t-wait{background:var(--waitbg);color:var(--wait);border:2px solid var(--wait)}
+.t-info{background:var(--infobg);color:var(--info);border:2px solid var(--info)}
+.name{font-weight:700}
+.detail{font-size:16px;opacity:.9;word-break:break-word}
+code,.mono{font-family:ui-monospace,Menlo,monospace;font-size:14px;word-break:break-all}
+button{font:inherit;font-weight:700;border-radius:14px;border:2px solid var(--ink);background:var(--card);color:var(--ink);padding:16px 18px;min-height:56px}
+#tapBtn{width:100%;font-size:24px;background:#ffd76a;color:#2a2118}
+#dragBox{height:130px;border:3px dashed var(--ink);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;touch-action:none;user-select:none;-webkit-user-select:none;background:var(--card);margin-top:10px;padding:8px}
+#liveClock{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums}
+#fixedBar{position:fixed;left:0;right:0;bottom:0;background:#14663a;color:#fff;text-align:center;font-weight:700;padding:12px 12px calc(12px + env(safe-area-inset-bottom));z-index:50;font-size:16px}
+.probe{position:absolute;left:0;top:0;width:1px;visibility:hidden;pointer-events:none}
+#dvhProbe{height:100dvh}
+#safeProbe{position:fixed;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.cssbadge::after{content:" CSS is working (this sentence is added by the style sheet)";font-weight:700;color:var(--ok)}
+.thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.thumbs img{width:64px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+img.tilepic{display:block;width:128px;height:128px;border:2px solid var(--ink);background:repeating-linear-gradient(45deg,#ddd 0 8px,#fff 8px 16px);margin:8px 0}
+textarea{width:100%;height:220px;font:13px/1.35 ui-monospace,Menlo,monospace;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px}
+ol.steps{padding-left:22px}
+</style>
+</head>
+<body>
+
+<h1>Pruyn Paths phone check</h1>
+<p class="sub">Version: <b>SMALL (no big photos)</b> &middot; built 2026-10-12 &middot; this file is about <b>0.04 MB</b></p>
+
+<!-- 1. STATIC: visible whether or not JavaScript runs. JavaScript hides this sentence the moment it starts. -->
+<p id="nojs" class="banner bad">If you can only see this sentence, JavaScript did NOT run.</p>
+<noscript><p class="banner bad">JavaScript is switched off or blocked in the viewer you used to open this page. Screenshot this screen.</p></noscript>
+
+<div id="jsStarted" class="banner good" hidden>JavaScript is running. The clock below should be ticking.</div>
+
+<div class="card" id="clockCard" hidden>
+  <div class="detail">Live clock (proves the page is alive):</div>
+  <div id="liveClock">--:--:--</div>
+  <div class="detail">Ticks so far: <b id="tickCount">0</b> &middot; Page opened: <span id="openedAt"></span></div>
+</div>
+
+<div id="summary" class="banner" hidden></div>
+<div id="crashNote" class="banner bad" hidden></div>
+<div id="errBox" class="card mono" hidden></div>
+
+<h2>A. Checks that need no JavaScript</h2>
+<p class="detail">You can read these even if JavaScript is blocked. Take a screenshot of this section if the top banner is red.</p>
+
+<div class="card">
+  <p class="name">A1. Style sheet</p>
+  <p class="detail cssbadge">If you see a bold green sentence at the end of this line:</p>
+</div>
+
+<div class="card">
+  <p class="name">A2. Tiny built-in picture</p>
+  <p class="detail">You should see a green square with a white tick (the picture is stored inside this file).</p>
+  <img alt="(built-in picture did not show)" width="48" height="48" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect width='48' height='48' rx='8' fill='%2314663a'/%3E%3Cpath d='M12 25l8 8 16-18' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</div>
+
+<div class="card">
+  <p class="name">A3. Map picture from the internet (no JavaScript)</p>
+  <p class="detail">You should see a small topographic map square from USGS (the real map service the storybook uses). A grey striped box means the picture did not load.</p>
+  <img class="tilepic" alt="(internet picture did not load)" width="128" height="128" src="https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/14/6184/3386">
+</div>
+
+<h2>B. Checks that need JavaScript</h2>
+<p class="detail">Each line says PASS, FAIL, WAITING or INFO. Slower ones (map picture, big photos) may take a few seconds.</p>
+<div id="results"></div>
+
+<h2>C. Touch test</h2>
+<p class="detail">Tap the yellow button a few times, then drag your finger around in the dashed box.</p>
+<button id="tapBtn" type="button">TAP ME</button>
+<p class="detail">Taps counted: <b id="tapCount">0</b> &middot; pointerdown: <b id="pdCount">0</b> &middot; touchstart: <b id="tsCount">0</b> &middot; click: <b id="ckCount">0</b></p>
+<div id="dragBox">Drag your finger here<br>(pointer moves counted: <b id="moveCount">0</b>)</div>
+
+<h2>D. Layout test</h2>
+<p class="detail">Scroll the page up and down. The green bar at the bottom of the screen should stay glued to the bottom edge, not jump or hide behind Safari's toolbar. If it does not, write that down.</p>
+
+<h2>E. Results as text</h2>
+<p class="detail">Optional: tap the button, then touch and hold the box, Select All, Copy. Or simply send screenshots.</p>
+<button id="showReport" type="button" hidden>Show results as text</button>
+<textarea id="report" readonly hidden></textarea>
+<p class="detail" style="margin-top:24px">Nothing on this page is uploaded anywhere. The only network requests are the three small USGS map pictures used for the map tests.</p>
+
+<div id="fixedBar">Bottom bar: should stay at the bottom edge of the screen</div>
+<div id="dvhProbe" class="probe"></div>
+<div id="safeProbe" class="probe"></div>
+
+<!-- 2. Tiny first script (old-fashioned syntax on purpose): proves JavaScript can run at all, before anything else is attempted. -->
+<script>
+(function(){
+  var errs=[];
+  window.__ppErrors=errs;
+  window.onerror=function(msg,src,line,col){errs.push(String(msg)+' (line '+line+')');var b=document.getElementById('errBox');if(b){b.hidden=false;b.textContent='Script errors: '+errs.join(' | ');}};
+  var n=document.getElementById('nojs'); if(n){n.style.display='none';}
+  var s=document.getElementById('jsStarted'); if(s){s.hidden=false;}
+  var c=document.getElementById('clockCard'); if(c){c.hidden=false;}
+  var ticks=0;
+  function pad(x){return (x<10?'0':'')+x;}
+  function tick(){var d=new Date();var el=document.getElementById('liveClock');if(el){el.textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}ticks++;var t=document.getElementById('tickCount');if(t){t.textContent=ticks;}}
+  tick();
+  setInterval(tick,1000);
+  var o=document.getElementById('openedAt'); if(o){o.textContent=new Date().toLocaleTimeString();}
+  window.__ppBooted=true;
+})();
+</script>
+
+<!-- 3. Main checks. Promise-based, no async/await or optional chaining, so old iOS versions can still run it. -->
+<script>
+(function(){
+  if(!window.__ppBooted){return;}
+  var TILE_JS='https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/14/6184/3387';
+  var TILE_FETCH='https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/14/6185/3386';
+  var rows={};          // id -> {status,name,detail}
+  var order=[];
+  var resultsEl=document.getElementById('results');
+  var pending=0;
+
+  function esc(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function label(st){return st==='pass'?'PASS':st==='fail'?'FAIL':st==='wait'?'WAITING':'INFO';}
+  function render(id){
+    var r=rows[id], el=document.getElementById('row-'+id);
+    if(!el){el=document.createElement('div');el.id='row-'+id;el.className='card';resultsEl.appendChild(el);}
+    el.innerHTML='<div class="row"><span class="tag t-'+r.status+'">'+label(r.status)+'</span><div><div class="name">'+esc(r.name)+'</div><div class="detail">'+r.detail+'</div></div></div>';
+    if(r.extra){el.appendChild(r.extra);}
+    summarize();
+  }
+  function set(id,name,status,detail,extra){
+    if(!rows[id]){order.push(id);}
+    rows[id]={name:name,status:status,detail:detail,extra:extra||null};
+    render(id);
+  }
+  function summarize(){
+    var pass=0,fail=0,wait=0,i;
+    for(i=0;i<order.length;i++){var s=rows[order[i]].status;if(s==='pass')pass++;else if(s==='fail')fail++;else if(s==='wait')wait++;}
+    var el=document.getElementById('summary');
+    el.hidden=false;
+    el.className='banner '+(fail?'bad':(wait?'':'good'));
+    el.style.background=wait&&!fail?'var(--waitbg)':'';
+    el.style.color=wait&&!fail?'var(--wait)':'';
+    el.style.border=wait&&!fail?'2px solid var(--wait)':'';
+    el.textContent='Checks so far: '+pass+' PASS, '+fail+' FAIL'+(wait?', '+wait+' still waiting':'');
+    document.getElementById('showReport').hidden=false;
+  }
+  function plain(s){return String(s).replace(/<[^>]*>/g,'');}
+  function safe(fn,id,name){try{fn();}catch(e){set(id,name,'fail','The check itself crashed: '+esc(e&&e.name)+' '+esc(e&&e.message));}}
+
+  // ---- B1: JavaScript + timestamp
+  set('js','JavaScript is running','pass','Yes. Clock started at '+esc(new Date().toString())+'. (The ticking clock at the top proves it stays alive.)');
+
+  // ---- B2: where is this page running from?
+  safe(function(){
+    var L=window.location, href=String(L.href);
+    var base=href.length>110?href.slice(0,70)+' ... '+href.slice(-30):href;
+    var proto=L.protocol, origin=L.origin;
+    var framed=false; try{framed=(window.self!==window.top);}catch(e){framed=true;}
+    set('where','Where is this page running from?','info',
+      'protocol: <b>'+esc(proto)+'</b><br>origin: <b>'+esc(origin)+'</b><br>address: <span class="mono">'+esc(base)+'</span><br>'+
+      'document.referrer: <b>'+esc(document.referrer||'(empty)')+'</b><br>'+
+      'inside a frame: <b>'+(framed?'yes':'no')+'</b> &middot; secure context: <b>'+esc(window.isSecureContext)+'</b>');
+  },'where','Where is this page running from?');
+
+  // ---- B3: browser identity
+  safe(function(){
+    var ua=navigator.userAgent||'';
+    var looksSafari=/Version\/[\d.]+/.test(ua)&&/Safari\//.test(ua);
+    var kind=looksSafari?'Looks like Safari (or a Safari-based browser such as SFSafariViewController)':'Looks like an app\'s built-in web view or another viewer (no "Safari/" token)';
+    var standalone=(typeof navigator.standalone!=='undefined')?String(navigator.standalone):'(not reported)';
+    set('ua','Which browser/viewer is this?','info',
+      esc(kind)+' <i>(guess only)</i><br><span class="mono">'+esc(ua)+'</span><br>home-screen app mode (navigator.standalone): <b>'+esc(standalone)+'</b>');
+  },'ua','Which browser/viewer is this?');
+
+  // ---- B4: viewport
+  safe(function(){
+    var vv=window.visualViewport;
+    var cs=getComputedStyle(document.getElementById('safeProbe'));
+    var dvhOK=false; try{dvhOK=!!(window.CSS&&CSS.supports&&CSS.supports('height','100dvh'));}catch(e){}
+    var dvhH=document.getElementById('dvhProbe').offsetHeight;
+    var innerH=window.innerHeight;
+    var barRect=document.getElementById('fixedBar').getBoundingClientRect();
+    var barGap=Math.round(innerH-barRect.bottom);
+    var detail=
+      'window: <b>'+window.innerWidth+' x '+innerH+'</b> px &middot; screen: <b>'+screen.width+' x '+screen.height+'</b> &middot; devicePixelRatio: <b>'+window.devicePixelRatio+'</b><br>'+
+      'visualViewport: <b>'+(vv?Math.round(vv.width)+' x '+Math.round(vv.height)+' (scale '+vv.scale+')':'(not available)')+'</b><br>'+
+      '100dvh supported: <b>'+dvhOK+'</b> &middot; 100dvh measured: <b>'+dvhH+'</b> px<br>'+
+      'safe-area insets top/right/bottom/left: <b>'+cs.paddingTop+' / '+cs.paddingRight+' / '+cs.paddingBottom+' / '+cs.paddingLeft+'</b><br>'+
+      'orientation: <b>'+esc((screen.orientation&&screen.orientation.type)||(window.innerWidth>innerH?'landscape':'portrait'))+'</b>';
+    set('view','Screen and viewport','info',detail);
+    var ok=Math.abs(barGap)<=2;
+    var dOK=!dvhOK||Math.abs(dvhH-innerH)<=2;
+    set('fixed','Bottom bar (position:fixed) and 100dvh layout',(ok&&dOK)?'pass':'fail',
+      'bottom bar gap from screen bottom: <b>'+barGap+' px</b> (expected 0)'+(dvhOK?' &middot; 100dvh vs window height difference: <b>'+(dvhH-innerH)+' px</b> (expected about 0)':' &middot; 100dvh not supported here')+
+      '<br>Also check by eye (section D): does the green bar stay put when you scroll?');
+  },'view','Screen and viewport');
+
+  // ---- B5: storage
+  safe(function(){
+    var out=[],okAll=true;
+    ['localStorage','sessionStorage'].forEach(function(n){
+      try{
+        var s=window[n]; var k='pp_test_'+Date.now();
+        s.setItem(k,'ok'); var v=s.getItem(k); s.removeItem(k);
+        if(v==='ok'){out.push(n+': <b>works</b>');}else{okAll=false;out.push(n+': <b>wrote but could not read back</b>');}
+      }catch(e){okAll=false;out.push(n+': <b>blocked</b> ('+esc(e&&e.name)+': '+esc(e&&e.message)+')');}
+    });
+    set('storage','localStorage / sessionStorage',okAll?'pass':'fail',out.join('<br>')+'<br><i>The current storybook viewer does not use either, so a FAIL here is information, not a blocker.</i>');
+  },'storage','localStorage / sessionStorage');
+
+  // ---- B6: tile image from JavaScript
+  safe(function(){
+    set('tileimg','Map picture from the internet (created by JavaScript)','wait','Loading one USGS map picture...');
+    var t0=Date.now(), done=false;
+    var im=new Image();
+    var timer=setTimeout(function(){if(!done){done=true;set('tileimg','Map picture from the internet (created by JavaScript)','fail','No answer after 15 seconds (still loading or blocked). Check that you have internet.');}},15000);
+    im.onload=function(){if(done)return;done=true;clearTimeout(timer);
+      var ex=document.createElement('div');ex.className='thumbs';var t=new Image();t.src=im.src;t.style.width='96px';t.style.height='96px';ex.appendChild(t);
+      set('tileimg','Map picture from the internet (created by JavaScript)','pass','Loaded in '+(Date.now()-t0)+' ms, '+im.naturalWidth+' x '+im.naturalHeight+' px. This is how the storybook draws its map.',ex);};
+    im.onerror=function(){if(done)return;done=true;clearTimeout(timer);set('tileimg','Map picture from the internet (created by JavaScript)','fail','The picture request failed (blocked, offline, or this viewer does not allow internet pictures).');};
+    im.src=TILE_JS;
+  },'tileimg','Map picture from the internet (created by JavaScript)');
+
+  // ---- B7: fetch() to the tile server
+  safe(function(){
+    if(!window.fetch){set('fetch','fetch() to the map server','info','fetch() is not available in this viewer.');return;}
+    set('fetch','fetch() to the map server','wait','Asking the map server...');
+    fetch(TILE_FETCH).then(function(r){return r.blob().then(function(b){set('fetch','fetch() to the map server',r.ok?'pass':'fail','HTTP '+r.status+', '+b.size+' bytes, type '+esc(b.type)+'. (The viewer does not need fetch(); this is extra information.)');});})
+    .catch(function(e){set('fetch','fetch() to the map server','fail',esc(e&&e.name)+': '+esc(e&&e.message)+'. (The viewer does not need fetch(); extra information.)');});
+  },'fetch','fetch() to the map server');
+
+  // ---- B8: WebP decode (the storybook stores photos as WebP)
+  safe(function(){
+    set('webp','WebP picture decoding (photos in the storybook are WebP)','wait','Decoding a 1-pixel WebP...');
+    var lossy='data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
+    var im=new Image();
+    im.onload=function(){set('webp','WebP picture decoding (photos in the storybook are WebP)','pass','WebP decodes here.');};
+    im.onerror=function(){set('webp','WebP picture decoding (photos in the storybook are WebP)','fail','This viewer could not decode WebP.');};
+    im.src=lossy;
+  },'webp','WebP picture decoding');
+
+  // ---- B9: features that matter for future sharing ideas
+  safe(function(){
+    var f=[];
+    f.push('CompressionStream: <b>'+(typeof CompressionStream!=='undefined')+'</b>');
+    f.push('DecompressionStream: <b>'+(typeof DecompressionStream!=='undefined')+'</b>');
+    f.push('Blob + URL.createObjectURL: <b>'+(typeof Blob!=='undefined'&&!!(window.URL&&URL.createObjectURL))+'</b>');
+    f.push('navigator.share: <b>'+(typeof navigator.share==='function')+'</b>');
+    var cs='(not available)';
+    try{ if(typeof navigator.canShare==='function'&&typeof File!=='undefined'){cs=String(navigator.canShare({files:[new File(['<html></html>'],'story.html',{type:'text/html'})]}));} }catch(e){cs='error: '+esc(e&&e.name);}
+    f.push('navigator.canShare({files:[.html file]}): <b>'+cs+'</b>');
+    f.push('IntersectionObserver: <b>'+(typeof IntersectionObserver!=='undefined')+'</b> &middot; ResizeObserver: <b>'+(typeof ResizeObserver!=='undefined')+'</b>');
+    f.push('navigator.onLine: <b>'+esc(navigator.onLine)+'</b>');
+    set('feat','Other features (for future ideas)','info',f.join('<br>'));
+  },'feat','Other features');
+
+  // ---- B10: big embedded photos (only in the full version)
+  function bigPayload(){
+    var el=document.getElementById('payload');
+    var name='Big embedded photos ('+(el?'about 0 MB':'not in this version')+')';
+    if(!el){set('big',name,'info','This is the SMALL version of the page, which has no big photos. Use it to separate "did the file arrive and open?" from "can this viewer cope with a big file?".');return;}
+    var prior=null; try{prior=sessionStorage.getItem('pp_big_state');}catch(e){}
+    if(prior==='started'){var cn=document.getElementById('crashNote');cn.hidden=false;cn.textContent='Heads up: the last time this page was opened in this tab, the big-photo test did not finish. The page may have run out of memory and reloaded. Write that down!';}
+    try{sessionStorage.setItem('pp_big_state','started');}catch(e){}
+    set('big',name,'wait','Reading the embedded photo data from the page... (if nothing changes for a minute, screenshot this)');
+    setTimeout(function(){
+      var t0=Date.now();
+      try{
+        var txt=el.textContent; var len=txt.length;
+        var data=JSON.parse(txt); txt=null;
+        var parseMs=Date.now()-t0;
+        var list=data.photos||[]; var okN=0,failN=0,i=0; var holder=document.createElement('div');holder.className='thumbs';
+        set('big',name,'wait','Read '+(len/1e6).toFixed(1)+' MB of text and parsed it in '+parseMs+' ms. Now decoding '+list.length+' photos...',holder);
+        (function next(){
+          if(i>=list.length){
+            var ms=Date.now()-t0; try{sessionStorage.setItem('pp_big_state','done');}catch(e){}
+            set('big',name,failN?'fail':'pass','Text length '+(len/1e6).toFixed(1)+' MB. '+okN+' of '+list.length+' photos decoded ('+failN+' failed) in '+ms+' ms total. (Each photo is 1600 x '+list[0].h+' px static noise, like a real photo in size.)',holder);
+            return;}
+          var p=list[i++]; var im=new Image();
+          im.onload=function(){okN++;holder.appendChild(im);set('big',name,'wait','Decoded '+okN+' of '+list.length+'...',holder);setTimeout(next,0);};
+          im.onerror=function(){failN++;setTimeout(next,0);};
+          im.src=p.data;
+        })();
+      }catch(e){set('big',name,'fail','Could not read or parse the embedded data: '+esc(e&&e.name)+' '+esc(e&&e.message));}
+    },50);
+  }
+  // The payload element sits at the very end of the file, so wait until the whole page has been read.
+  set('big','Big embedded photos','wait','Waiting for the rest of the file to finish loading...');
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){safe(bigPayload,'big','Big embedded photos');});}
+  else{safe(bigPayload,'big','Big embedded photos');}
+
+  // ---- C: touch + pointer counts
+  var counts={pd:0,ts:0,ck:0,mv:0,taps:0};
+  function bump(id,key){counts[key]++;var e=document.getElementById(id);if(e){e.textContent=counts[key];}}
+  var tapBtn=document.getElementById('tapBtn');
+  tapBtn.addEventListener('pointerdown',function(){bump('pdCount','pd');});
+  tapBtn.addEventListener('touchstart',function(){bump('tsCount','ts');},{passive:true});
+  tapBtn.addEventListener('click',function(){bump('ckCount','ck');bump('tapCount','taps');
+    set('tap','Touch / tap events','pass','Registered '+counts.taps+' tap(s). pointerdown: '+counts.pd+', touchstart: '+counts.ts+', click: '+counts.ck+'.');});
+  set('tap','Touch / tap events','wait','Waiting for you to tap the yellow TAP ME button (section C).');
+  var drag=document.getElementById('dragBox');
+  drag.addEventListener('pointermove',function(){bump('moveCount','mv');if(counts.mv===5){set('drag','Drag / pointer-move events (needed to pan the map)','pass','Pointer moves are being delivered while you drag.');}});
+  set('drag','Drag / pointer-move events (needed to pan the map)','wait','Waiting for you to drag your finger in the dashed box (section C).');
+
+  // ---- Text report
+  var btn=document.getElementById('showReport'), ta=document.getElementById('report');
+  btn.addEventListener('click',function(){
+    var lines=['Pruyn Paths phone check (SMALL (no big photos)), built 2026-10-12','Opened: '+new Date().toString(),''];
+    for(var i=0;i<order.length;i++){var r=rows[order[i]];lines.push('['+label(r.status)+'] '+r.name+': '+plain(r.detail.replace(/<br>/g,' | ')));}
+    lines.push('','Script errors: '+(window.__ppErrors.length?window.__ppErrors.join(' | '):'none'));
+    ta.value=lines.join('\n');ta.hidden=false;ta.focus();ta.select();
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value);}}catch(e){}
+  });
+})();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Test pages for Pruyn Paths: does an exported storybook work when it is opened on an iPhone?">
+<title>Pruyn Paths iPhone tests</title>
+<style>
+:root{--bg:#fbf6ea;--ink:#2a2118;--muted:#6b5d49;--card:#fff;--line:#e3d9c3;--accent:#2f6b3f;--accent-ink:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1a15;--ink:#f3ecdc;--muted:#b9ad97;--card:#2a261f;--line:#4a4336;--accent:#7fc995;--accent-ink:#10281a}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;padding:20px 16px calc(32px + env(safe-area-inset-bottom)) 16px}
+main{max-width:640px;margin:0 auto}
+h1{font-size:1.6rem;line-height:1.2;margin:.2em 0 .4em}
+h2{font-size:1.1rem;margin:1.6em 0 .5em}
+p{margin:.5em 0}
+.muted{color:var(--muted);font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.card h3{margin:0 0 2px;font-size:1.05rem}
+.meta{color:var(--muted);font-size:.85rem;margin:0 0 6px}
+.go{display:block;text-align:center;text-decoration:none;font-weight:600;background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:14px 16px;margin-top:10px;min-height:48px}
+ol,ul{padding-left:1.2em;margin:.4em 0}
+li{margin:.25em 0}
+</style>
+</head>
+<body>
+<main>
+<h1>Pruyn Paths iPhone tests</h1>
+<p>Does a Pruyn Paths storybook work when it is opened on an iPhone? Does it load, does the JavaScript run, does the map draw, and does a big photo-heavy story survive? Try the tests below in Safari, top to bottom. &ldquo;It did nothing&rdquo; and &ldquo;it looked broken&rdquo; are useful results.</p>
+
+<h2>The tests</h2>
+
+<div class="card">
+  <h3>A &middot; Quick check</h3>
+  <p class="meta">23 KB &middot; tiny</p>
+  <p>A checklist page. You want to see <strong>&ldquo;JavaScript is running&rdquo;</strong> with a ticking clock, and a small map picture in section A3. At the bottom, <strong>Show results as text</strong> lets you copy what it found.</p>
+  <a class="go" href="jscheck-small.html">Open A: quick check</a>
+</div>
+
+<div class="card">
+  <h3>B &middot; Big-file check</h3>
+  <p class="meta">15 MB &middot; best on Wi-Fi</p>
+  <p>The same checklist with 15 MB of pictures hidden inside. It shows whether a large single-file page loads, stalls, reloads or crashes on your phone.</p>
+  <a class="go" href="jscheck.html">Open B: big-file check</a>
+</div>
+
+<div class="card">
+  <h3>C &middot; Sample storybook</h3>
+  <p class="meta">0.1 MB &middot; a real exported storybook, made-up trail</p>
+  <p>Press <strong>Begin the journey</strong>, pause, continue, and open the Moments list (the list icon). Does the route animate on the map?</p>
+  <a class="go" href="sample-storybook.html">Open C: sample storybook</a>
+</div>
+
+<div class="card">
+  <h3>D &middot; Photo-heavy storybook</h3>
+  <p class="meta">20 MB &middot; 52 generated photos &middot; only if B went well</p>
+  <p>The same storybook stuffed with photos, to stress memory. If the page freezes, goes blank or reloads, write that down.</p>
+  <a class="go" href="sample-storybook-heavy.html">Open D: photo-heavy storybook</a>
+</div>
+
+<h2>Write down</h2>
+<ul>
+  <li>Your iPhone model and iOS version (Settings, General, About), Wi-Fi or cellular, and whether Low Power Mode is on.</li>
+  <li>For each test: did it load, did it run, and what broke. Screenshots help; include the time bar at the top of the screen.</li>
+</ul>
+
+<h2>Then test the link itself</h2>
+<p>Text this page&rsquo;s address to a friend and post it in Slack. Does a preview picture appear? Does tapping it open Safari, or a viewer inside Messages or Slack? Do the tests behave the same way there?</p>
+
+<h2>What these pages are</h2>
+<p class="muted">Everything here is synthetic: the trail is made up and the photos are generated images. The pages do not collect or send anything; they only fetch public map pictures from the U.S. Geological Survey (with Esri as a backup). This site is generated from the private Pruyn Paths project and is not edited by hand.</p>
+</main>
+</body>
+</html>

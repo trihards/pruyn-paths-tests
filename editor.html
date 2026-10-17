@@ -42,6 +42,23 @@
 
 /* Not V12: the autosave resume bar */
 .resume-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}.resume-bar p{flex:1 1 100%;margin:0 0 2px;font-size:14px}
+/* Not V12: photo-first start and photo-story cards */
+.photo-start{margin:4px 0 14px}.photo-start-btn{display:flex;width:100%;min-height:52px;font-size:17px;cursor:pointer}.photo-start .helper{margin:8px 0 0}.route-optional{margin:14px 0 6px;font-size:13px;color:#5d6b5d}
+.map.photo-story .tilelayer,.map.photo-story .routecanvas,.map.photo-story .map-tools,.map.photo-story .map-attribution,.map.photo-story .map-status{display:none}
+.photo-moment-img{display:block;width:100%;max-height:260px;object-fit:cover;border-radius:10px;margin:6px 0 10px}
+.photo-moment .stop-actions{display:flex;gap:8px;flex-wrap:wrap}.photo-moment .stop-actions .btn{min-height:40px}
+/* Not V12: a hidden map stage must not take space (on phones it kept the preview at zero height) */
+.stage[hidden]{display:none}
+.empty .empty-photos{margin:0 auto 10px;min-height:48px;padding:12px 26px;font-size:16px;cursor:pointer}.empty .empty-photos[hidden]{display:none}
+.empty .btn.secondary-start{background:transparent;color:var(--forest);border-color:transparent;box-shadow:none}
+.builder-section[hidden],.addstop[hidden],#bulkPhotosArea[hidden]{display:none}
+.stats[hidden]{display:none}
+/* Not V12: the replace question in Pruyn Paths' style, and the resume offer as a sheet a phone can't miss */
+.pp-dialog-backdrop{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(30,41,30,.38)}
+.pp-dialog{width:min(380px,100%);background:var(--paper);border-radius:18px;padding:24px 22px 18px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.pp-dialog h2{font-size:22px;margin:0 0 8px;line-height:1.2}.pp-dialog p{margin:0 0 18px;color:#5d6b5d;font-size:15px}
+.pp-dialog-actions{display:flex;gap:10px;flex-wrap:wrap}.pp-dialog-actions .btn{flex:1 1 140px;min-height:48px;font-size:15px}
+@media(max-width:740px){.resume-bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:60;margin:0;box-shadow:0 12px 36px rgba(0,0,0,.22)}.resume-bar .btn{min-height:46px;flex:1 1 auto}}
 </style>
 </head>
 <body>
@@ -59,7 +76,8 @@
   <aside class="sidebar" aria-label="Adventure editor">
     <div class="section"><div class="eyebrow" style="color:#b07a56">A LITTLE MACHINE FOR KEEPSAKES</div><h1>Take them<br><em>along.</em></h1><p class="subline">Turn a real trail into a guided little adventure. No account, no app, just your stories.</p></div>
     <details class="section builder-section" open>
-      <summary class="stephead" title="Click to expand or collapse this section"><div class="stepname"><span class="num">1</span> Find your path</div><span class="eyebrow" style="color:#9caaa0">GPX</span></summary>
+      <summary class="stephead" title="Click to expand or collapse this section"><div class="stepname"><span class="num">1</span> Start with photos</div><span class="eyebrow" style="color:#9caaa0">ROUTE OPTIONAL</span></summary>
+      <div class="photo-start" id="photoStart"><label class="btn primary photo-start-btn" for="photoStoryInput">Choose photos</label><input type="file" id="photoStoryInput" accept="image/*" multiple hidden><p class="helper">Pick a handful of photos from your adventure. Your story is ready to play right away; captions are optional.</p><p class="route-optional">Add a route (optional) for the full trail experience:</p></div>
       <label class="dropzone" id="dropZone" for="fileInput"><span class="dropicon">↥</span><strong>Drop a GPX trail here</strong><p>or click to browse for an AllTrails track</p></label>
       <input type="file" id="fileInput" accept=".gpx,.xml,.json,application/gpx+xml,application/json" hidden>
       <div class="underlinks"><button class="inlinebtn" id="sampleBtn">Try sample GPX route ↗</button><button class="inlinebtn" id="openDraftBtn">Open draft</button></div>
@@ -113,7 +131,7 @@
       <div class="map-meta"><span class="meta-pill">✦ <span id="mapKicker">THE ADVENTURE AWAITS</span></span><h2 class="title-float" id="mapTitle">Somewhere wonderful.</h2></div>
       <div class="map-tools"><button class="mapbtn" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button><button class="mapbtn" id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button><button class="mapbtn" id="fitBtn" title="Fit the entire route" aria-label="Fit the route" style="font-size:17px">⌗</button></div>
       <div class="map-attribution" id="mapAttribution"><a href="https://www.usgs.gov/the-national-map-data-delivery" target="_blank" rel="noopener">Map: USGS The National Map</a></div>
-      <div class="empty" id="emptyState"><div class="map-compass">✳</div><h2>Every path has a story.</h2><p>Import a GPX file or explore the sample route.</p><button class="btn primary" id="emptySampleBtn">Explore sample route →</button></div>
+      <div class="empty" id="emptyState"><div class="map-compass">✳</div><h2>Every path has a story.</h2><p>Start with a few photos from your adventure. A GPX route is optional.</p><label class="btn primary empty-photos" id="emptyPhotosBtn" for="photoStoryInput">Choose photos</label><button class="btn primary" id="emptySampleBtn">Explore sample route →</button></div>
       <div class="map-hint" id="mapHint" hidden>Click the trail to place a moment · Esc to cancel</div>
     </div>
   </section>
@@ -327,6 +345,13 @@ h1,h2,h3,p{margin:0}
 .nojs h2{font:normal 22px/1.3 Georgia,serif;color:var(--forest);margin:26px 0 8px}
 .nojs ol{padding-left:22px}.nojs li{margin:10px 0}.nojs p{white-space:pre-line}
 .nojs .nojs-note{margin-top:30px;padding:12px 14px;background:#eef3eb;border:1px solid #d7e2d5;border-radius:12px;font-size:14px;white-space:normal}
+
+/* Not V12: photo stories (no route, no map). The current photo, softened, fills the stage behind the cards. */
+.photo-backdrop{position:absolute;inset:-40px;background:#dfe3d6 center/cover no-repeat;filter:blur(26px) saturate(1.1) brightness(.92);transform:scale(1.08);transition:background-image .6s ease}
+.map.photo-story{background:#cfd6c8}
+.map.photo-story .tilelayer,.map.photo-story .routecanvas,.map.photo-story .map-tools,.map.photo-story .map-attribution,.map.photo-story .map-status{display:none}
+.map.photo-story .meta-pill,.map.photo-story .title-float{text-shadow:0 1px 12px rgba(255,255,255,.6)}
+.map.photo-story~.playbar .player-right{visibility:hidden}
 `, script: `"use strict";
 (() => {
   var __defProp = Object.defineProperty;
@@ -360,7 +385,7 @@ h1,h2,h3,p{margin:0}
   function parseStory(data) {
     if (!isObj(data)) throw new StoryError("This is not a Pruyn Paths story.");
     let t = data.track;
-    if (!Array.isArray(t) || t.length < LIMITS.minPoints || t.length > LIMITS.maxPoints || t.some((p) => !isObj(p) || !Number.isFinite(p.lat) || !Number.isFinite(p.lon))) throw new StoryError("Invalid route data.");
+    if (!(Array.isArray(t) && t.length === 0) && (!Array.isArray(t) || t.length < LIMITS.minPoints || t.length > LIMITS.maxPoints || t.some((p) => !isObj(p) || !Number.isFinite(p.lat) || !Number.isFinite(p.lon)))) throw new StoryError("Invalid route data.");
     let track = t.map((p) => ({ lat: p.lat, lon: p.lon })), raw = Array.isArray(data.stops) ? data.stops.filter((s) => isObj(s) && Number.isFinite(s.at)).slice(0, LIMITS.maxMoments) : [], used = new Set(raw.map((s) => String(s.id || "")).filter(Boolean)), n = 0, freshId = () => {
       let id;
       do
@@ -386,6 +411,7 @@ h1,h2,h3,p{margin:0}
       ...data.defaultCamera === "follow" || data.defaultCamera === "fixed" ? { defaultCamera: data.defaultCamera } : {}
     };
   }
+  var isPhotoStory = (s) => s.track.length === 0;
 
   // src/core/route.ts
   var Route = class {
@@ -572,6 +598,9 @@ h1,h2,h3,p{margin:0}
       __publicField(this, "statusLast", "");
       __publicField(this, "creditId", "usgs");
       __publicField(this, "toastTimer", 0);
+      /** A story made from photos alone: no map, no route; Continue steps from card to card over a backdrop of the photo. */
+      __publicField(this, "photoMode", !1);
+      __publicField(this, "backdrop", Object.assign(document.createElement("div"), { className: "photo-backdrop" }));
       __publicField(this, "map", $("mapArea"));
       __publicField(this, "canvas", $("routeCanvas"));
       __publicField(this, "ctx", this.canvas.getContext("2d"));
@@ -590,9 +619,25 @@ h1,h2,h3,p{margin:0}
     // ---- loading ----
     /** Show a story: route, text and moments. Call \`begin()\` to open the welcome card. */
     load(story) {
-      this.pause(), this.hideOverlay(), this.story = story, this.route = new Route(story.track), this.position = 0, this.visited.clear(), this.autoAdvance = story.autoAdvanceMoments, this.setCameraMode(story.defaultCamera ?? "follow"), $("emptyState").hidden = !0;
+      this.pause(), this.hideOverlay(), this.story = story, this.photoMode = isPhotoStory(story), this.map.classList.toggle("photo-story", this.photoMode), this.photoMode && !this.backdrop.isConnected && this.map.prepend(this.backdrop), this.route = new Route(story.track), this.position = 0, this.visited.clear(), this.autoAdvance = story.autoAdvanceMoments, this.setCameraMode(story.defaultCamera ?? "follow"), $("emptyState").hidden = !0;
       for (let id of ["playBtn", "resetBtn", "progressRange"]) $(id).disabled = !1;
-      $("mapTitle").textContent = story.title, $("mapKicker").textContent = story.demo ? "SAMPLE GPX ROUTE" : "A PRUYN PATHS FIELD REPORT", document.title = story.title + " \\u2014 Pruyn Paths", this.renderMomentIndex(), this.camera.fit(this.route, 0), this.render();
+      $("mapTitle").textContent = story.title, $("mapKicker").textContent = story.demo ? "SAMPLE GPX ROUTE" : "A PRUYN PATHS FIELD REPORT", document.title = story.title + " \\u2014 Pruyn Paths", this.renderMomentIndex(), this.photoMode ? this.setBackdrop(story.openingPhotos[0] ?? this.ordered()[0]?.photos[0]) : this.camera.fit(this.route, 0), this.render();
+    }
+    // ---- photo stories ----
+    ordered() {
+      return this.story.moments.slice().sort((a, b) => a.at - b.at);
+    }
+    setBackdrop(src) {
+      src && (this.backdrop.style.backgroundImage = 'url("' + src.replace(/["\\\\\\n]/g, "") + '")');
+    }
+    /** Photo stories have no journey between cards: Play and Continue go straight to the next moment, or to the end. */
+    nextCard() {
+      let next = this.ordered().find((m) => !this.visited.has(m.id));
+      if (!next) {
+        this.position = 1, this.render(), this.showOverlay("end");
+        return;
+      }
+      this.position = next.at, this.visited.add(next.id), this.render(), this.showOverlay("stop", next);
     }
     /** V12 shows the welcome card 150 ms after load. */
     begin() {
@@ -623,19 +668,30 @@ h1,h2,h3,p{margin:0}
     // ---- drawing ----
     render() {
       if (!this.story) return;
+      if (this.photoMode) {
+        let n = this.story.moments.length, seen = this.ordered().filter((m) => this.visited.has(m.id)).length;
+        $("progressRange").value = String(Math.round(this.position * 1e3)), $("percentLabel").textContent = Math.round(this.position * 100) + "%", $("distanceProgress").textContent = n ? seen + " of " + n + " moments" : "A photo story", $("playBtn").textContent = "\\u25B6", $("playBtn").setAttribute("aria-label", "Play");
+        return;
+      }
       this.camera.mode === "follow" && this.playing && this.camera.follow(this.route, this.position);
       let w = this.map.clientWidth, h = this.map.clientHeight;
       this.tiles.draw(this.camera.center, this.camera.zoom, w, h), drawRoute(this.canvas, this.ctx, this.camera, this.route, this.position, this.story.moments.map((m) => m.at), w, h), $("progressRange").value = String(Math.round(this.position * 1e3)), $("percentLabel").textContent = Math.round(this.position * 100) + "%", $("distanceProgress").textContent = formatMiles(this.position * this.route.length) + " explored", $("playBtn").textContent = this.playing ? "\\u2161" : "\\u25B6", $("playBtn").setAttribute("aria-label", this.playing ? "Pause" : "Play");
     }
     onResize() {
-      this.story && this.camera.mode === "fixed" && this.position === 0 && (this.camera.calcFit(this.route), this.camera.zoom = this.camera.fitZoom, this.camera.center = { ...this.camera.fitCenter }), this.render();
+      this.story && !this.photoMode && this.camera.mode === "fixed" && this.position === 0 && (this.camera.calcFit(this.route), this.camera.zoom = this.camera.fitZoom, this.camera.center = { ...this.camera.fitCenter }), this.render();
     }
     // ---- playback ----
     pause() {
       this.playing = !1, this.prevT = 0, cancelAnimationFrame(this.raf), $("playBtn").textContent = "\\u25B6";
     }
     play() {
-      this.story && (this.overlay && this.hideOverlay(), this.position >= 1 && (this.position = 0, this.visited.clear()), this.resumedAt = this.position, this.playing = !0, this.prevT = 0, this.raf = requestAnimationFrame((t) => this.tick(t)), this.render());
+      if (this.story) {
+        if (this.overlay && this.hideOverlay(), this.position >= 1 && (this.position = 0, this.visited.clear()), this.photoMode) {
+          this.nextCard();
+          return;
+        }
+        this.resumedAt = this.position, this.playing = !0, this.prevT = 0, this.raf = requestAnimationFrame((t) => this.tick(t)), this.render();
+      }
     }
     tick(t) {
       if (!this.playing) return;
@@ -692,7 +748,9 @@ h1,h2,h3,p{margin:0}
     showOverlay(kind, moment) {
       this.stopAuto(), this.overlay = kind, this.activeMoment = kind === "stop" ? moment ?? null : null, this.photoIndex = 0;
       let s = this.story, stop = this.activeMoment;
-      $("overlayCard").classList.toggle("welcome", kind !== "stop"), $("overlayKicker").textContent = kind === "stop" ? "MOMENT \\xB7 " + Math.round(stop.at * 100) + "% ALONG THE WAY" : kind === "end" ? "THE END OF THE TRAIL" : "A PRUYN PATHS ADVENTURE", $("overlayTitle").textContent = kind === "stop" ? stop.title || "Along the way" : kind === "end" ? s.endingTitle : s.openingTitle || s.title, $("overlayText").textContent = kind === "stop" ? stop.caption || "A moment worth stopping for." : kind === "end" ? s.endingMessage : s.intro || "A little journey, best enjoyed at your own pace.", this.showPhoto(), $("overlayContinue").textContent = kind === "stop" ? "Continue the journey \\u2192" : kind === "end" ? "Explore it again \\u21BA" : "Begin the journey \\u2192", $("storyOverlay").hidden = !1, this.startAuto();
+      $("overlayCard").classList.toggle("welcome", kind !== "stop"), $("overlayKicker").textContent = kind === "stop" ? "MOMENT \\xB7 " + Math.round(stop.at * 100) + "% ALONG THE WAY" : kind === "end" ? "THE END OF THE TRAIL" : "A PRUYN PATHS ADVENTURE", $("overlayTitle").textContent = kind === "stop" ? stop.title || "Along the way" : kind === "end" ? s.endingTitle : s.openingTitle || s.title, $("overlayText").textContent = kind === "stop" ? stop.caption || "A moment worth stopping for." : kind === "end" ? s.endingMessage : s.intro || "A little journey, best enjoyed at your own pace.";
+      let bare = this.photoMode && kind === "stop";
+      $("overlayTitle").hidden = bare && !stop.title, $("overlayText").hidden = bare && !stop.caption, bare && ($("overlayKicker").textContent = "MOMENT " + (this.ordered().indexOf(stop) + 1) + " OF " + s.moments.length), this.photoMode && kind === "end" && ($("overlayKicker").textContent = "THE END"), this.photoMode && this.setBackdrop(this.photosForOverlay()[0] ?? (kind === "welcome" ? this.ordered()[0]?.photos[0] : void 0)), this.photoMode && ($("overlayContinue").textContent = kind === "stop" ? "Next \\u2192" : kind === "end" ? "See it again \\u21BA" : "Begin \\u2192"), this.showPhoto(), this.photoMode || ($("overlayContinue").textContent = kind === "stop" ? "Continue the journey \\u2192" : kind === "end" ? "Explore it again \\u21BA" : "Begin the journey \\u2192"), $("storyOverlay").hidden = !1, this.startAuto();
     }
     hideOverlay() {
       this.stopAuto(), this.overlay = null, $("storyOverlay").hidden = !0;
@@ -722,9 +780,10 @@ h1,h2,h3,p{margin:0}
         let body = document.createElement("span");
         body.className = "jump-text";
         let title = document.createElement("strong");
-        title.textContent = m.title || "Along the way";
+        title.textContent = m.title || (this.photoMode ? "Moment " + (i + 1) : "Along the way");
         let caption = document.createElement("small");
-        caption.textContent = formatMiles(m.at * this.route.length) + " along the trail \\xB7 " + m.photos.length + " photo" + (m.photos.length === 1 ? "" : "s"), body.append(title, caption), btn.append(circle, body);
+        caption.textContent = this.photoMode ? m.caption.split(\`
+\`)[0].slice(0, 60) || m.photos.length + " photo" + (m.photos.length === 1 ? "" : "s") : formatMiles(m.at * this.route.length) + " along the trail \\xB7 " + m.photos.length + " photo" + (m.photos.length === 1 ? "" : "s"), body.append(title, caption), btn.append(circle, body);
         let photo = m.photos[0];
         if (photo) {
           let img = document.createElement("img");
@@ -732,7 +791,7 @@ h1,h2,h3,p{margin:0}
         }
         let arrow = document.createElement("span");
         arrow.className = "jump-arrow", arrow.textContent = "\\u203A", btn.append(arrow), btn.addEventListener("click", () => {
-          this.pause(), this.hideOverlay(), this.position = m.at, this.visited = new Set(this.story.moments.filter((x) => x.at <= m.at + AT_EPSILON).map((x) => x.id)), this.camera.mode === "follow" && (this.camera.center = this.route.pointAt(m.at)), this.closeDrawer(), this.render(), this.showOverlay("stop", m);
+          this.pause(), this.hideOverlay(), this.position = m.at, this.visited = new Set(this.story.moments.filter((x) => x.at <= m.at + AT_EPSILON).map((x) => x.id)), this.camera.mode === "follow" && !this.photoMode && (this.camera.center = this.route.pointAt(m.at)), this.closeDrawer(), this.render(), this.showOverlay("stop", m);
         }), list.append(btn);
       });
     }
@@ -743,9 +802,9 @@ h1,h2,h3,p{margin:0}
         let drawer = $("momentsDrawer");
         drawer.hidden = !drawer.hidden, $("momentsBtn").setAttribute("aria-expanded", String(!drawer.hidden)), drawer.hidden || this.renderMomentIndex();
       }), $("closeMoments").addEventListener("click", () => this.closeDrawer()), $("playBtn").addEventListener("click", () => this.playing ? this.pause() : this.play()), $("resetBtn").addEventListener("click", () => {
-        this.pause(), this.hideOverlay(), this.position = 0, this.visited.clear(), this.camera.mode === "follow" && (this.camera.center = this.route.pointAt(0)), this.render();
+        this.pause(), this.hideOverlay(), this.position = 0, this.visited.clear(), this.camera.mode === "follow" && !this.photoMode && (this.camera.center = this.route.pointAt(0)), this.render();
       }), $("progressRange").addEventListener("input", (e) => {
-        this.pause(), this.hideOverlay(), this.position = +e.target.value / 1e3, this.visited = new Set(this.story.moments.filter((s) => s.at <= this.position).map((s) => s.id)), this.camera.mode === "follow" && (this.camera.center = this.route.pointAt(this.position)), this.render();
+        this.pause(), this.hideOverlay(), this.position = +e.target.value / 1e3, this.visited = new Set(this.story.moments.filter((s) => s.at <= this.position).map((s) => s.id)), this.camera.mode === "follow" && !this.photoMode && (this.camera.center = this.route.pointAt(this.position)), this.render();
       }), $("speedSelect").addEventListener("change", (e) => {
         this.speed = +e.target.value;
       }), $("zoomIn").addEventListener("click", () => {
@@ -753,9 +812,9 @@ h1,h2,h3,p{margin:0}
       }), $("zoomOut").addEventListener("click", () => {
         this.camera.zoomBy(-1), this.render();
       }), $("fitBtn").addEventListener("click", () => {
-        this.setCameraMode("fixed"), this.camera.fit(this.route, this.position), this.render();
+        this.photoMode || (this.setCameraMode("fixed"), this.camera.fit(this.route, this.position), this.render());
       }), $("followToggle").addEventListener("click", () => {
-        this.story && (this.setCameraMode(this.camera.mode === "follow" ? "fixed" : "follow"), this.camera.fit(this.route, this.position), this.render());
+        !this.story || this.photoMode || (this.setCameraMode(this.camera.mode === "follow" ? "fixed" : "follow"), this.camera.fit(this.route, this.position), this.render());
       }), $("overlayContinue").addEventListener("click", () => this.continueOverlay()), $("autoStayBtn").addEventListener("click", () => this.stayAtMoment()), $("photoPrev").addEventListener("click", () => {
         this.stayAtMoment(), this.photoIndex--, this.showPhoto();
       }), $("photoNext").addEventListener("click", () => {
@@ -763,7 +822,7 @@ h1,h2,h3,p{margin:0}
       }), $("retryMap").addEventListener("click", () => {
         this.tiles.reset(), this.tiles.draw(this.camera.center, this.camera.zoom, this.map.clientWidth, this.map.clientHeight);
       }), map.addEventListener("pointerdown", (e) => {
-        e.target.closest("button,a") || !this.story || this.overlay || e.pointerType === "mouse" && e.button !== 0 || (this.pointer = { x: e.clientX, y: e.clientY, center: { ...this.camera.center }, moved: !1 }, map.setPointerCapture(e.pointerId));
+        e.target.closest("button,a") || !this.story || this.overlay || this.photoMode || e.pointerType === "mouse" && e.button !== 0 || (this.pointer = { x: e.clientX, y: e.clientY, center: { ...this.camera.center }, moved: !1 }, map.setPointerCapture(e.pointerId));
       }), map.addEventListener("pointermove", (e) => {
         let p = this.pointer;
         if (!p) return;
@@ -775,7 +834,7 @@ h1,h2,h3,p{margin:0}
       }), map.addEventListener("pointercancel", () => {
         this.pointer = null, map.classList.remove("dragging", "moving"), this.render();
       }), map.addEventListener("wheel", (e) => {
-        !this.story || this.overlay || (e.preventDefault(), this.camera.zoomBy(e.deltaY < 0 ? 1 : -1), this.render());
+        !this.story || this.overlay || this.photoMode || (e.preventDefault(), this.camera.zoomBy(e.deltaY < 0 ? 1 : -1), this.render());
       }, { passive: !1 }), document.addEventListener("visibilitychange", () => {
         document.hidden && this.stayAtMoment();
       }), document.addEventListener("keydown", (e) => {
@@ -923,6 +982,101 @@ h1,h2,h3,p{margin:0}
     return m || (m = { id: newId(), at: clampMomentAt(at), title: "Photos along the way", caption: "", photos: [] }, moments.push(m)), m.photos.push(photo), m;
   }
 
+  // src/core/photoTime.ts
+  function jpegTiff(dv) {
+    let o = 2;
+    for (; o + 4 <= dv.byteLength; ) {
+      if (dv.getUint8(o) !== 255) return -1;
+      let m = dv.getUint8(o + 1), len = dv.getUint16(o + 2);
+      if (m === 218 || m === 217) return -1;
+      if (m === 225 && o + 10 <= dv.byteLength && dv.getUint32(o + 4) === 1165519206) return o + 10;
+      o += 2 + len;
+    }
+    return -1;
+  }
+  function heicTiff(dv) {
+    let fourcc = (o2) => String.fromCharCode(dv.getUint8(o2), dv.getUint8(o2 + 1), dv.getUint8(o2 + 2), dv.getUint8(o2 + 3)), box = (o2) => {
+      let size = dv.getUint32(o2), h = 8;
+      return size === 1 ? (size = Number(dv.getBigUint64(o2 + 8)), h = 16) : size === 0 && (size = dv.byteLength - o2), { type: fourcc(o2 + 4), body: o2 + h, end: o2 + size };
+    }, children = (from, to) => {
+      let out = [];
+      for (let o2 = from; o2 + 8 <= to; ) {
+        let b = box(o2);
+        if (b.end <= o2 || b.end > to) break;
+        out.push(b), o2 = b.end;
+      }
+      return out;
+    }, meta = children(0, dv.byteLength).find((b) => b.type === "meta");
+    if (!meta) return -1;
+    let kids = children(meta.body + 4, meta.end), iinf = kids.find((b) => b.type === "iinf"), iloc = kids.find((b) => b.type === "iloc");
+    if (!iinf || !iloc) return -1;
+    let o = iinf.body;
+    o += dv.getUint8(o) === 0 ? 6 : 8;
+    let exifId = -1;
+    for (let e of children(o, iinf.end)) {
+      if (e.type !== "infe") continue;
+      let v = dv.getUint8(e.body);
+      if (v < 2) continue;
+      let p = e.body + 4, id = v === 2 ? dv.getUint16(p) : dv.getUint32(p);
+      if (p += (v === 2 ? 2 : 4) + 2, fourcc(p) === "Exif") {
+        exifId = id;
+        break;
+      }
+    }
+    if (exifId < 0) return -1;
+    o = iloc.body;
+    let lv = dv.getUint8(o);
+    o += 4;
+    let s1 = dv.getUint8(o), s2 = dv.getUint8(o + 1);
+    o += 2;
+    let offS = s1 >> 4, lenS = s1 & 15, baseS = s2 >> 4, idxS = lv > 0 ? s2 & 15 : 0, rd = (n) => {
+      let v = n === 0 ? 0 : n === 4 ? dv.getUint32(o) : n === 8 ? Number(dv.getBigUint64(o)) : n === 2 ? dv.getUint16(o) : NaN;
+      return o += n, v;
+    }, count = lv < 2 ? rd(2) : rd(4);
+    for (let i = 0; i < count; i++) {
+      let id = lv < 2 ? rd(2) : rd(4), method = lv > 0 ? rd(2) & 15 : 0;
+      rd(2);
+      let base = rd(baseS), ext = rd(2), first = null;
+      for (let k = 0; k < ext; k++) {
+        idxS && rd(idxS);
+        let eo = rd(offS);
+        rd(lenS), first || (first = { eo });
+      }
+      if (id !== exifId) continue;
+      if (method !== 0 || !first) return -1;
+      let at = base + first.eo;
+      return at + 4 > dv.byteLength ? -1 : at + 4 + dv.getUint32(at);
+    }
+    return -1;
+  }
+  function takenFromTiff(dv, t) {
+    if (t < 0 || t + 8 > dv.byteLength) return null;
+    let le = dv.getUint16(t) === 18761, u16 = (x) => dv.getUint16(t + x, le), u32 = (x) => dv.getUint32(t + x, le), entries = (at, fn) => {
+      if (!(!at || t + at + 2 > dv.byteLength))
+        for (let i = 0, n = Math.min(256, u16(at)); i < n; i++) fn(u16(at + 2 + 12 * i), at + 2 + 12 * i);
+    }, exif = 0, taken = null;
+    return entries(u32(4), (tag, e) => {
+      tag === 34665 && (exif = u32(e + 8));
+    }), entries(exif, (tag, e) => {
+      if (tag !== 36867) return;
+      let n = u32(e + 4), at = n <= 4 ? e + 8 : u32(e + 8), s = "";
+      for (let i = 0; i < n - 1; i++) s += String.fromCharCode(dv.getUint8(t + at + i));
+      /^\d{4}:\d\d:\d\d \d\d:\d\d:\d\d/.test(s) && (taken = s.slice(0, 19));
+    }), taken;
+  }
+  function photoTakenAt(buffer) {
+    try {
+      let dv = new DataView(buffer), u8 = new Uint8Array(buffer, 0, Math.min(12, buffer.byteLength));
+      return u8[0] === 255 && u8[1] === 216 ? takenFromTiff(dv, jpegTiff(dv)) : String.fromCharCode(...u8.slice(4, 8)) === "ftyp" ? takenFromTiff(dv, heicTiff(dv)) : null;
+    } catch {
+      return null;
+    }
+  }
+  function inTakenOrder(items, takenAt) {
+    let times = items.map(takenAt);
+    return times.every(Boolean) ? items.map((item, i) => ({ item, i, t: times[i] })).sort((a, b) => a.t < b.t ? -1 : a.t > b.t ? 1 : a.i - b.i).map((x) => x.item) : items.slice();
+  }
+
   // src/core/story.ts
   var KNOWN_FORMATS = ["pruyn-paths-project-v1", "amanda-goes-project-v1"], DEFAULT_ENDING_TITLE = "And that\u2019s a wrap.", DEFAULT_ENDING_MESSAGE = "Every good adventure deserves a good story. Thanks for coming along.", LIMITS = { minPoints: 2, maxPoints: 1e5, maxMoments: 100, title: 100, bookendTitle: 110, text: 1400 }, StoryError = class extends Error {
   }, isObj = (v) => typeof v == "object" && v !== null, oneLine = (s) => s.replace(/[\r\n]/g, ""), multiLine = (s) => s.replace(/\r\n?/g, `
@@ -934,7 +1088,7 @@ h1,h2,h3,p{margin:0}
   function parseStory(data) {
     if (!isObj(data)) throw new StoryError("This is not a Pruyn Paths story.");
     let t = data.track;
-    if (!Array.isArray(t) || t.length < LIMITS.minPoints || t.length > LIMITS.maxPoints || t.some((p) => !isObj(p) || !Number.isFinite(p.lat) || !Number.isFinite(p.lon))) throw new StoryError("Invalid route data.");
+    if (!(Array.isArray(t) && t.length === 0) && (!Array.isArray(t) || t.length < LIMITS.minPoints || t.length > LIMITS.maxPoints || t.some((p) => !isObj(p) || !Number.isFinite(p.lat) || !Number.isFinite(p.lon)))) throw new StoryError("Invalid route data.");
     let track = t.map((p) => ({ lat: p.lat, lon: p.lon })), raw = Array.isArray(data.stops) ? data.stops.filter((s) => isObj(s) && Number.isFinite(s.at)).slice(0, LIMITS.maxMoments) : [], used = new Set(raw.map((s) => String(s.id || "")).filter(Boolean)), n = 0, freshId = () => {
       let id;
       do
@@ -960,7 +1114,7 @@ h1,h2,h3,p{margin:0}
       ...data.defaultCamera === "follow" || data.defaultCamera === "fixed" ? { defaultCamera: data.defaultCamera } : {}
     };
   }
-  var ADVENTURE_DATA = /\x3Cscript id="adventure-data" type="application\/json">([\s\S]*?)<\/script>/;
+  var isPhotoStory = (s) => s.track.length === 0, ADVENTURE_DATA = /\x3Cscript id="adventure-data" type="application\/json">([\s\S]*?)<\/script>/;
   function parseStoryText(text) {
     let m = text.match(ADVENTURE_DATA), raw;
     try {
@@ -1201,6 +1355,10 @@ h1,h2,h3,p{margin:0}
     show(route, moments) {
       this.route = route, this.moments = moments, this.camera.mode = "fixed", this.camera.fit(route, 0), this.render();
     }
+    /** A photo story has no route: stop drawing one (the stage shows the photo-story card instead). */
+    hide() {
+      this.route = null;
+    }
     render() {
       if (!this.route) return;
       let w = this.el.clientWidth, h = this.el.clientHeight;
@@ -1324,6 +1482,8 @@ h1,h2,h3,p{margin:0}
   }, DEFAULT_TITLE = "A Little Adventure", plural = (n, word) => n + " " + word + (n === 1 ? "" : "s"), Editor = class {
     constructor() {
       __publicField(this, "trail", null);
+      /** A story made from photos alone (no route). Moments are spaced evenly in the order shown. */
+      __publicField(this, "photoStory", !1);
       __publicField(this, "moments", []);
       __publicField(this, "openingPhotos", []);
       __publicField(this, "endingPhotos", []);
@@ -1347,7 +1507,9 @@ h1,h2,h3,p{margin:0}
       __publicField(this, "dropResume", () => {
       });
       __publicField(this, "resumePending", !1);
-      this.bind(), this.setCamera("follow"), this.renderBookend("opening"), this.renderBookend("ending"), this.dirty = !1, this.offerResume();
+      // ---- photo stories (photo-first, 2026-10-17) ----
+      __publicField(this, "emptyText", []);
+      this.bind(), this.setPhotoStory(!1), this.setCamera("follow"), this.renderBookend("opening"), this.renderBookend("ending"), this.dirty = !1, this.offerResume();
     }
     newId(prefix) {
       return prefix + Date.now().toString(36) + "-" + ++this.seq;
@@ -1358,16 +1520,37 @@ h1,h2,h3,p{margin:0}
     // ---- autosave (not in V12) ----
     scheduleAutosave() {
       clearTimeout(this.autosaveTimer), this.autosaveTimer = window.setTimeout(() => {
-        this.trail && writeAutosave(JSON.stringify(this.projectData(!1)));
+        (this.trail || this.photoStory) && writeAutosave(JSON.stringify(this.projectData(!1)));
       }, 600);
     }
     /** Something the author would be sorry to lose: changes since the last draft download, or any moments or photos at all. */
     hasWork() {
-      return this.resumePending ? !0 : !!this.trail && (this.dirty || this.moments.length > 0 && !this.trail.demo || this.unplaced.length > 0 || this.openingPhotos.length > 0 || this.endingPhotos.length > 0);
+      return this.resumePending ? !0 : this.photoStory ? this.moments.length > 0 || this.dirty : !!this.trail && (this.dirty || this.moments.length > 0 && !this.trail.demo || this.unplaced.length > 0 || this.openingPhotos.length > 0 || this.endingPhotos.length > 0);
     }
     /** Ask before a GPX file, the sample or a draft replaces a story that has work in it. */
-    mayReplace() {
-      return !this.hasWork() || window.confirm("Replace the story you\u2019re working on? It will be lost unless you saved a draft.");
+    async mayReplace() {
+      return !this.hasWork() || await this.askReplace();
+    }
+    /** The replace question, in Pruyn Paths' own style rather than the browser's dialog (approved 2026-10-17). Keeping is the default. */
+    askReplace() {
+      return new Promise((resolve) => {
+        let keep = el("button", { type: "button", className: "btn", textContent: "Keep my story" }), replace = el("button", { type: "button", className: "btn primary", textContent: "Replace it" }), box = el(
+          "div",
+          { className: "pp-dialog", role: "alertdialog" },
+          el("h2", { id: "ppDialogTitle", textContent: "Replace the story you\u2019re working on?" }),
+          el("p", { id: "ppDialogText", textContent: "It will be lost unless you saved a draft." }),
+          el("div", { className: "pp-dialog-actions" }, keep, replace)
+        );
+        box.setAttribute("aria-modal", "true"), box.setAttribute("aria-labelledby", "ppDialogTitle"), box.setAttribute("aria-describedby", "ppDialogText");
+        let back = el("div", { className: "pp-dialog-backdrop" }, box), done = (yes) => {
+          document.removeEventListener("keydown", onKey, !0), back.remove(), resolve(yes);
+        }, onKey = (e) => {
+          e.key === "Escape" && (e.stopPropagation(), done(!1));
+        };
+        keep.addEventListener("click", () => done(!1)), replace.addEventListener("click", () => done(!0)), back.addEventListener("click", (e) => {
+          e.target === back && done(!1);
+        }), document.addEventListener("keydown", onKey, !0), document.body.append(back), keep.focus();
+      });
     }
     async offerResume() {
       let saved = await loadAutosave();
@@ -1398,7 +1581,7 @@ h1,h2,h3,p{margin:0}
     setTrail(track, o) {
       this.cancelPlacing();
       let route = new Route(track);
-      this.trail = { track, route, ...o }, this.moments = [], this.unplaced = [], $2("stats").hidden = !1, $2("emptyState").hidden = !0, $2("distanceStat").textContent = formatMiles(route.length), $2("pointsStat").textContent = o.sourcePoints.toLocaleString(), $2("trackStatus").textContent = (o.demo ? "Sample GPX route" : o.filename || "Route loaded") + " \xB7 " + track.length.toLocaleString() + " map points";
+      this.setPhotoStory(!1), this.trail = { track, route, ...o }, this.moments = [], this.unplaced = [], $2("stats").hidden = !1, $2("emptyState").hidden = !0, $2("distanceStat").textContent = formatMiles(route.length), $2("pointsStat").textContent = o.sourcePoints.toLocaleString(), $2("trackStatus").textContent = (o.demo ? "Sample GPX route" : o.filename || "Route loaded") + " \xB7 " + track.length.toLocaleString() + " map points";
       for (let id of ["addStopBtn", "exportBtn"]) $2(id).disabled = !1;
       this.map.show(route, () => this.moments), this.updateText(), this.renderMoments(), this.renderUnplaced();
     }
@@ -1406,18 +1589,18 @@ h1,h2,h3,p{margin:0}
       if (file)
         try {
           let text = await file.text(), isDraft = /\.json$/i.test(file.name), gpx = isDraft ? null : parseGpx(text);
-          if (isDraft && checkDraft(text), !this.mayReplace()) return;
+          if (isDraft && checkDraft(text), !await this.mayReplace()) return;
           if (this.dropResume(), !gpx) {
             this.openDraft(text), this.toast("Your editable draft is open.");
             return;
           }
-          this.setTrail(gpx.points, { filename: file.name, sourcePoints: gpx.raw, demo: !1 }), field("storyTitle").value === DEFAULT_TITLE && (field("storyTitle").value = file.name.replace(/\.(gpx|xml)$/i, "").replace(/[_-]+/g, " ")), this.updateText(), this.changed(), this.toast("Trail imported. Add moments, then preview your story.");
+          this.setTrail(gpx.points, { filename: file.name, sourcePoints: gpx.raw, demo: !1 }), field("storyTitle").value === DEFAULT_TITLE && (field("storyTitle").value = file.name.replace(/\.(gpx|xml)$/i, "").replace(/[_-]+/g, " ")), this.updateText(), this.dirty = !1, this.scheduleAutosave(), this.toast("Trail imported. Add moments, then preview your story.");
         } catch (e) {
           this.toast("Could not open file: " + (e instanceof Error ? e.message : String(e)));
         }
     }
-    sample() {
-      if (!this.mayReplace()) return;
+    async sample() {
+      if (!await this.mayReplace()) return;
       this.dropResume();
       let pts = decodePolyline("eg_uF|~ocSAEEK@ICMAGEKAKAEEIEM?EGKAIEECKCIEGCIGGEGAIGGGCCKGGEGCCGECGEEGKEAGIECCGGAGCEICAIECGGACCEEGGGAEEAAGECEE?GIE?CCCEEAEECCCCCEE?CEACECCAAECACGCECAACCEAG?AEACG?CCCAI?ACC?IACAG?CCCAE?KAA?ICC?EAI?E?GCEAE?G?G?CAIAECG?G?GAE?EAG?ICA?KACAECK?CCGAE?GACAIACCGAA?KCCCCCE?ECCEC?GAECCAACCCICAAEACEACEACCCA?EG??EGA@CCCEAAEAAAEE?CG@CA?GEAAAEEA?EA?EEAAACGA?CCCEECC?ACAECECCACCECGACECCGACAGCCAGCICCAEEEAGCICGEGCG?KCECKAEEKCEEGCMCICECMACEIEKCKEGAICIEGCMCIEIEGCEEICIEKEEEICIEGCCEKECGIEEEECCGECIECGEC?EEEGG?ECECCCIBCCE@E?ECGAEBE@CAEDG?CDE?EBCDC@EBGFCDEFE@ADIHCHCFCDCFCJEDCJADCHCJEDAJAJGHAJAJCHCLAHCFANAHAJCHAJCJCLAFALAJAF?LALCF?HAHALAJAJAHAJADCL@FEH@HAJCF?HAFEH?HCH@BCLCD?D?FEF?FCHAH?FADEBAFAHAD?BCFAHAFCB?FCF?DCBAFAFABEJAD?DED@DED@FCFADCFAFAD?HCDAFAD?FAHAD@HABCH@FAD?FCH@F?FCF@FAH@HAF@H?F?D?JBBCHBHAF@J@D?F?HBD?J?DDHAH?DBJ@F?BBFAH@HBB@F@F@F@J@D?B@J@B?JB@?HAD@BBH?F?FABBH?@@FAF?D?B?D?H@D?D?DCF?@AF?BAFCD@DEF@HADA@EF?HCBCD?DEJADCBCHAHC@CJEFADCFEJCDEJADCJCDEFAHGHALGF?JGD?LGFEHALADCNEFCJEJALAFELCJAHAHEJALAHAL?FENAHAL?FCN@HAJAJ@JCJ@JCF@L?L@H?H?JBH?H?HBFAJBH?LDFAFBFBF@J@HDD@H@HBF@BBFDJDD?BDJ@DHD@FB@DDDD?HDFBDDBDBBFBDB@FHB?@DFDBDD@DF@BB@DFDB@BFFBDDB@@DBDDDB@FBDD?@FBDFB@BDBBHBDD@@DDDBDBD@DDBB@BDDBBD@HD@DD@FD?@FD@BHB@F@BFDBBD@?DDDFBBDABFB?DB@BD@DBB?DDFA?BH@BAB@D@DCBBFABCB?BAF@DC@CF?FEDA@?FGBABEDABGFEBABIHEBABGDI@EFGBGFI@CBKFC@IDKDGBI?GDEFK?GDKBGBIDC?KBGDG@MBCBGDM@G@EBG@E@KDE@I@EBEBGDC?C@GBGBA@GBC@A@EBA@GBAB?@CBCB??ADA??D?@C@?D@?AFB?@BAB?DB@?B@@@D@B@BFD@DB@ABFD?BBBDBBFBDB@?FB@BF@BBBDFBB@DBFDB?DD@?D?DDD?FDB?B@D?F?FB@@D?B?F?DADBBCD@BADAF?BABCD?BCDA@CD?DCB?BEBEDEB?BEBCBGD?DI@ABGBEBC@EDE?GDC@IBA@GBEDI?EDCBI?EBEBCBG@IBC@GBG@E@IBE@GBE@GBEBEBEBKBA@GDG?GBEBGBEBIDC@E@GFE@GBIDC@IDCBE@GDE");
       this.setTrail(pts, { filename: "Sample GPX route \xB7 Test Loop", sourcePoints: pts.length, demo: !0 }), field("storyTitle").value = "Test Loop \xB7 Sample GPX route", field("storyIntro").value = "A sample GPX route. Add photos and notes to make it your own.", field("openingTitle").value = "", field("endingTitle").value = DEFAULT_ENDING_TITLE, field("endingMessage").value = DEFAULT_ENDING_MESSAGE, this.openingPhotos = [], this.endingPhotos = [], this.renderBookend("opening"), this.renderBookend("ending"), this.moments = [
@@ -1428,14 +1611,14 @@ h1,h2,h3,p{margin:0}
     // ---- drafts ----
     openDraft(text) {
       let raw = checkDraft(text), s = parseStoryText(text);
-      this.setTrail(s.track, { filename: s.filename, sourcePoints: s.sourcePoints, demo: s.demo }), field("storyTitle").value = s.title, field("storyIntro").value = s.intro, field("openingTitle").value = s.openingTitle, field("endingTitle").value = s.endingTitle, field("endingMessage").value = s.endingMessage, this.openingPhotos = s.openingPhotos, this.endingPhotos = s.endingPhotos, this.moments = s.moments, this.unplaced = Array.isArray(raw.unplacedPhotos) ? raw.unplacedPhotos.filter((p) => p && typeof p.src == "string" && p.src.startsWith("data:image/")).slice(0, 200).map((p) => ({ id: String(p.id || this.newId("unplaced-")), name: String(p.name || "Photo"), src: p.src })) : [], $2("autoAdvanceMoments").checked = s.autoAdvanceMoments, this.setCamera(s.defaultCamera ?? "follow"), Array.isArray(raw.builderOpen) && document.querySelectorAll(".builder-section").forEach((d, i) => {
+      isPhotoStory(s) ? this.startPhotoStory() : this.setTrail(s.track, { filename: s.filename, sourcePoints: s.sourcePoints, demo: s.demo }), field("storyTitle").value = s.title, field("storyIntro").value = s.intro, field("openingTitle").value = s.openingTitle, field("endingTitle").value = s.endingTitle, field("endingMessage").value = s.endingMessage, this.openingPhotos = s.openingPhotos, this.endingPhotos = s.endingPhotos, this.moments = s.moments, this.unplaced = Array.isArray(raw.unplacedPhotos) ? raw.unplacedPhotos.filter((p) => p && typeof p.src == "string" && p.src.startsWith("data:image/")).slice(0, 200).map((p) => ({ id: String(p.id || this.newId("unplaced-")), name: String(p.name || "Photo"), src: p.src })) : [], $2("autoAdvanceMoments").checked = s.autoAdvanceMoments, this.setCamera(s.defaultCamera ?? "follow"), Array.isArray(raw.builderOpen) && document.querySelectorAll(".builder-section").forEach((d, i) => {
         let v = raw.builderOpen[i];
         typeof v == "boolean" && (d.open = v);
       }), this.renderBookend("opening"), this.renderBookend("ending"), this.updateText(), this.renderMoments(), this.renderUnplaced(), this.map.render(), this.dirty = !1, this.scheduleAutosave();
     }
     /** The story in V12's draft shape, plus the author's default camera. Unplaced photos and open sections are editor state for drafts only. */
     projectData(forExport) {
-      let t = this.trail, v = (id) => field(id).value.trim(), data = {
+      let t = this.trail ?? { track: [], filename: "Photo story", sourcePoints: 0, demo: !1 }, v = (id) => field(id).value.trim(), data = {
         format: "pruyn-paths-project-v1",
         version: 1,
         title: v("storyTitle") || "An Adventure",
@@ -1466,15 +1649,15 @@ h1,h2,h3,p{margin:0}
       document.body.append(a), a.click(), a.remove(), setTimeout(() => URL.revokeObjectURL(url), 3e4);
     }
     saveDraft() {
-      if (!this.trail) {
-        this.toast("Import a route before saving a draft.");
+      if (!this.trail && !this.photoStory) {
+        this.toast("Choose some photos or import a route before saving a draft.");
         return;
       }
       this.download(safeBase(field("storyTitle").value) + ".pruyn.json", JSON.stringify(this.projectData(!1)), "application/json"), this.dirty = !1, this.toast("Editable draft saved to your device.");
     }
     exportStory() {
-      if (!this.trail) {
-        this.toast("Start with a GPX trail first.");
+      if (!this.trail && !this.photoStory) {
+        this.toast("Choose some photos first.");
         return;
       }
       let { story, html } = this.storybook();
@@ -1483,8 +1666,8 @@ h1,h2,h3,p{margin:0}
     // ---- preview: the real storybook in a frame ----
     preview(on) {
       if (on) {
-        if (!this.trail) {
-          this.toast("Import a route or try the sample first.");
+        if (!this.trail && !this.photoStory) {
+          this.toast("Choose some photos or import a route first.");
           return;
         }
         this.unplaced.length && this.toast("You have " + this.unplaced.length + " unplaced photos. They won\u2019t appear in the exported story."), this.cancelPlacing(), URL.revokeObjectURL(this.previewUrl), this.previewUrl = URL.createObjectURL(new Blob([this.storybook().html], { type: "text/html" })), $2("previewFrame").src = this.previewUrl;
@@ -1495,7 +1678,7 @@ h1,h2,h3,p{margin:0}
     // ---- 2 and 5. Set the scene, Sign off ----
     updateText() {
       let title = field("storyTitle").value.trim() || "An Adventure";
-      $2("mapTitle").textContent = this.trail ? title : "Somewhere wonderful.", $2("mapKicker").textContent = this.trail ? this.trail.demo ? "SAMPLE GPX ROUTE" : "A PRUYN PATHS FIELD REPORT" : "THE ADVENTURE AWAITS", document.title = title + " \u2014 Pruyn Paths";
+      $2("mapTitle").textContent = this.trail || this.photoStory ? title : "Somewhere wonderful.", $2("mapKicker").textContent = this.photoStory ? "A PHOTO STORY" : this.trail ? this.trail.demo ? "SAMPLE GPX ROUTE" : "A PRUYN PATHS FIELD REPORT" : "THE ADVENTURE AWAITS", document.title = title + " \u2014 Pruyn Paths";
     }
     renderBookend(which) {
       let pics = which === "opening" ? this.openingPhotos : this.endingPhotos;
@@ -1580,6 +1763,10 @@ h1,h2,h3,p{margin:0}
       card?.querySelector(".stop-card-title")?.replaceChildren(...this.cardHeading(m, i));
     }
     renderMoments() {
+      if (this.photoStory) {
+        this.renderPhotoMoments();
+        return;
+      }
       let list = $2("stopList"), ordered = this.sorted();
       $2("stopCounter").textContent = ordered.length + " " + (ordered.length === 1 ? "MOMENT" : "MOMENTS"), list.replaceChildren(...ordered.map((m, i) => {
         let title = el("input", { className: "input", id: "title-" + m.id, maxLength: 90, value: m.title });
@@ -1623,6 +1810,108 @@ h1,h2,h3,p{margin:0}
         return card.dataset.id = m.id, card;
       }));
     }
+    /** Enter or leave photo-story mode: the map gives way to a card that offers to play the story. */
+    setPhotoStory(on) {
+      this.photoStory = on, $2("mapArea").classList.toggle("photo-story", on);
+      let empty = $2("emptyState"), h = empty.querySelector("h2"), p = empty.querySelector("p"), b = $2("emptySampleBtn");
+      this.emptyText.length || (this.emptyText = [h.textContent, p.textContent, b.textContent]);
+      let [title, text, button] = on ? ["Your story is ready.", "Add a caption or two below, or play it now.", "\u25B6 Play my story"] : this.emptyText;
+      h.textContent = title, p.textContent = text, b.textContent = button, $2("emptyPhotosBtn").hidden = on, b.classList.toggle("secondary-start", !on);
+      for (let x of [document.querySelectorAll(".builder-section")[2], $2("bulkPhotosArea"), document.querySelector(".addstop")]) x && (x.hidden = on);
+      on && (empty.hidden = !1, $2("stats").hidden = !0, this.map.hide());
+    }
+    /** Start a photo story with no moments yet (used when opening a photo-story draft). */
+    startPhotoStory() {
+      this.cancelPlacing(), this.trail = null, this.moments = [], this.unplaced = [], this.setPhotoStory(!0);
+      for (let id of ["exportBtn"]) $2(id).disabled = !1;
+      $2("addStopBtn").disabled = !0, this.updateText(), this.renderMoments(), this.renderUnplaced();
+    }
+    /** Even spacing in the order shown: the viewer plays photo stories card by card in this order. */
+    respace() {
+      let n = this.moments.length;
+      this.moments.forEach((m, i) => {
+        m.at = (i + 1) / (n + 1);
+      });
+    }
+    /** Photos become moments, one each, in the order they were taken when every photo says so, else in the order picked. */
+    async photosToMoments(files, replace) {
+      if (!files.length) return;
+      let status = $2("trackStatus"), before = status.textContent;
+      status.textContent = "Getting your photos ready\u2026";
+      let ok = (await Promise.all(files.slice(0, PHOTO_LIMITS.batch).map(async (f) => {
+        let taken = null;
+        try {
+          taken = photoTakenAt(await f.arrayBuffer());
+        } catch {
+        }
+        try {
+          return { src: await loadPhoto(f), taken };
+        } catch {
+          return null;
+        }
+      }))).filter((x) => !!x), skipped = files.length - ok.length;
+      if (!ok.length) {
+        status.textContent = before, this.toast("Those photos couldn\u2019t be opened here.");
+        return;
+      }
+      if (replace) {
+        if (!await this.mayReplace()) {
+          status.textContent = before;
+          return;
+        }
+        this.dropResume(), this.startPhotoStory(), field("storyTitle").value = DEFAULT_TITLE, field("storyIntro").value = "", field("openingTitle").value = "", field("endingTitle").value = DEFAULT_ENDING_TITLE, field("endingMessage").value = DEFAULT_ENDING_MESSAGE, this.openingPhotos = [], this.endingPhotos = [], this.renderBookend("opening"), this.renderBookend("ending");
+      }
+      for (let p of inTakenOrder(ok, (x) => x.taken)) {
+        if (this.moments.length >= 100) break;
+        this.moments.push({ id: this.newId("photo-"), at: 0, title: "", caption: "", photos: [p.src] });
+      }
+      this.respace(), this.changed(), this.updateText(), this.renderMoments(), $2("trackStatus").textContent = plural(this.moments.length, "photo") + " \xB7 a photo story";
+      let builder = document.querySelectorAll(".builder-section")[3];
+      builder && (builder.open = !0), this.toast(ok.length ? (replace ? "Your story is ready. Tap Preview to play it, or add a caption or two." : plural(ok.length, "photo") + " added.") + (skipped ? " " + plural(skipped, "photo") + " couldn\u2019t be opened here." : "") : "Those photos couldn\u2019t be opened here.");
+    }
+    renderPhotoMoments() {
+      let list = $2("stopList"), ordered = this.moments;
+      $2("stopCounter").textContent = ordered.length + " " + (ordered.length === 1 ? "MOMENT" : "MOMENTS");
+      let move = (i, by) => {
+        let j = i + by;
+        j < 0 || j >= ordered.length || ([ordered[i], ordered[j]] = [ordered[j], ordered[i]], this.respace(), this.changed(), this.renderMoments());
+      }, more = el("label", { className: "photo-upload" }, el("span", { textContent: "\uFF0B" }), el("span", { textContent: "Add more photos" })), moreInput = el("input", { className: "photo-input", type: "file", accept: "image/*", multiple: !0 });
+      moreInput.addEventListener("change", () => {
+        let files = [...moreInput.files ?? []];
+        moreInput.value = "", this.photosToMoments(files, !1);
+      }), more.append(moreInput), list.replaceChildren(...ordered.map((m, i) => {
+        let cover = el("img", { className: "photo-moment-img", src: m.photos[0] ?? "", alt: "Photo " + (i + 1) }), caption = el("textarea", { className: "textarea", id: "caption-" + m.id, rows: 2, maxLength: 1200, placeholder: "Say something about this (optional)", value: m.caption });
+        caption.addEventListener("input", () => {
+          m.caption = caption.value, this.changed();
+        });
+        let title = el("input", { className: "input", id: "title-" + m.id, maxLength: 90, value: m.title, placeholder: "Title (optional)" });
+        title.addEventListener("input", () => {
+          m.title = title.value, this.changed();
+        });
+        let btn = (label, aria, fn, disabled = !1) => {
+          let b = el("button", { className: "btn small", type: "button", textContent: label, disabled });
+          return b.setAttribute("aria-label", aria), b.addEventListener("click", fn), b;
+        }, extra = m.photos.length > 1 ? el("p", { className: "helper", textContent: "+ " + plural(m.photos.length - 1, "more photo") }) : "", card = el(
+          "div",
+          { className: "stop-card photo-moment" },
+          el("div", { className: "stop-card-title" }, el("span", { textContent: "\u2726 MOMENT " + (i + 1) + " OF " + ordered.length })),
+          cover,
+          extra,
+          el("label", { className: "field" }, el("span", { textContent: "Caption" }), caption),
+          el("label", { className: "field" }, el("span", { textContent: "Title" }), title),
+          el(
+            "div",
+            { className: "stop-actions" },
+            btn("\u2191 Earlier", "Move moment " + (i + 1) + " earlier", () => move(i, -1), i === 0),
+            btn("\u2193 Later", "Move moment " + (i + 1) + " later", () => move(i, 1), i === ordered.length - 1),
+            btn("Remove", "Remove moment " + (i + 1), () => {
+              this.moments.splice(i, 1), this.respace(), this.changed(), this.renderMoments();
+            })
+          )
+        );
+        return card.dataset.id = m.id, card;
+      }), more);
+    }
     renderUnplaced() {
       $2("unplacedPanel").hidden = !this.unplaced.length, $2("unplacedCount").textContent = this.unplaced.length + " waiting";
       let ordered = this.moments.slice().sort((a, b) => a.at - b.at);
@@ -1655,7 +1944,14 @@ h1,h2,h3,p{margin:0}
       let fileInput = $2("fileInput");
       fileInput.addEventListener("change", () => {
         this.openFile(fileInput.files?.[0]), fileInput.value = "";
-      }), $2("sampleBtn").addEventListener("click", () => this.sample()), $2("emptySampleBtn").addEventListener("click", () => this.sample()), $2("openDraftBtn").addEventListener("click", () => fileInput.click());
+      }), $2("sampleBtn").addEventListener("click", () => {
+        this.sample();
+      }), $2("emptySampleBtn").addEventListener("click", () => this.photoStory ? this.preview(!0) : void this.sample());
+      let photoStart = $2("photoStoryInput");
+      photoStart.addEventListener("change", () => {
+        let files = [...photoStart.files ?? []];
+        photoStart.value = "", this.photosToMoments(files, !0);
+      }), $2("openDraftBtn").addEventListener("click", () => fileInput.click());
       let drop = $2("dropZone");
       drop.addEventListener("dragover", (e) => {
         e.preventDefault(), drop.classList.add("dragover");

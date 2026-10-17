@@ -1,0 +1,1653 @@
+<!doctype html>
+<!--
+  Pruyn Paths story editor: one self-contained HTML file. Open it in a current web browser; nothing is uploaded and there is no account.
+  Your GPX file and photos stay in this browser. The map pictures load from USGS and need an internet connection.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Pruyn Paths — Story Editor</title>
+<style>
+:root{--forest:#193b32;--forest2:#102d27;--sage:#dfe8d9;--cream:#f6f3e9;--paper:#fffcf5;--ink:#1f2925;--quiet:#768078;--line:#e2e3d9;--orange:#eb824e;--accent:#df7747;--white:#fff;--shadow:0 15px 50px rgba(14,38,31,.13)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:var(--cream);color:var(--ink);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.42}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #6da69c;outline-offset:2px}h1,h2,h3,p{margin:0}.serif{font-family:Georgia,"Times New Roman",serif}.eyebrow{text-transform:uppercase;letter-spacing:.19em;font-size:10px;font-weight:800}.topbar{height:79px;display:flex;align-items:center;justify-content:space-between;padding:0 25px;gap:15px;border-bottom:1px solid var(--line);background:var(--paper);position:relative;z-index:5}.logo{display:flex;align-items:center;gap:13px;min-width:0}.brandmark{display:grid;place-items:center;width:39px;height:39px;background:var(--forest);color:var(--cream);border-radius:13px;transform:rotate(-8deg);font-size:21px}.brandname{font-family:Georgia,serif;font-size:26px;letter-spacing:-1.6px;white-space:nowrap;line-height:1}.brand-sub{font-size:10px;letter-spacing:.17em;color:#878c81;margin-top:5px;font-weight:750}.topright{display:flex;align-items:center;gap:9px}.btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:11px;padding:10px 14px;background:var(--paper);color:var(--ink);font-size:13px;font-weight:700;transition:background .12s,transform .12s}.btn:hover:not(:disabled){background:#eef1e9}.btn:active:not(:disabled){transform:translateY(1px)}.btn.primary{background:var(--forest);color:white;border-color:var(--forest)}.btn.primary:hover:not(:disabled){background:#2c5749}.btn.peach{background:var(--orange);border-color:var(--orange);color:#1e291e}.btn.small{padding:7px 10px;font-size:12px;border-radius:9px}.btn.linky{background:transparent;border:0;padding:7px;color:var(--forest);font-size:12px}.ic{font-size:16px;line-height:1}.workspace{display:grid;grid-template-columns:clamp(440px,36vw,560px) minmax(0,1fr);height:calc(100dvh - 79px);min-height:500px}.sidebar{background:var(--paper);border-right:1px solid var(--line);overflow-y:auto;overscroll-behavior:contain;padding:22px 22px 70px;scrollbar-color:#c6cfc3 transparent}.sidebar h1{font:normal 30px/1.13 Georgia,serif;letter-spacing:-.8px;margin:9px 0 8px}.subline{font-size:13px;line-height:1.55;color:#66756a}.section{padding:22px 0;border-bottom:1px solid var(--line)}.section:first-child{padding-top:2px}.stephead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:11px}.stepname{font-weight:800;font-size:13px;display:flex;align-items:center;gap:8px}.num{display:grid;place-items:center;border-radius:50%;background:#e6ede2;color:#336047;font-size:11px;width:23px;height:23px}.helper{font-size:12px;color:#7e897c;line-height:1.55}.dropzone{display:block;width:100%;text-align:center;border:1.5px dashed #a9bcb1;border-radius:14px;background:#f4f7ef;padding:19px 12px;transition:background .15s}.dropzone.dragover{background:#d8e9dc}.dropzone:hover{background:#ebf1e7}.dropicon{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:#e1eadb;color:var(--forest);margin:0 auto 9px;font-size:22px}.dropzone strong{font-size:13px}.dropzone p{margin-top:6px;font-size:11px;color:#849084}.underlinks{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:7px}.inlinebtn{border:0;background:transparent;color:#315d49;font-size:12px;font-weight:800;padding:8px 1px;text-decoration:underline;text-decoration-color:#bdcfc2;text-underline-offset:3px}.field{display:block;margin-top:12px}.field span{display:block;font-size:11px;color:#64746b;font-weight:750;margin-bottom:6px}.input,.textarea{display:block;width:100%;background:#fff;border:1px solid #d9dfd5;border-radius:10px;color:var(--ink);padding:11px 12px;outline:none;font-size:13px}.textarea{resize:vertical;min-height:72px;line-height:1.45}.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}.stat{padding:11px;border-radius:10px;background:#f1f3ec}.stat b{font-size:17px;color:var(--forest);font-weight:800}.stat span{display:block;text-transform:uppercase;letter-spacing:.11em;color:#899387;font-size:9px;font-weight:800;margin-top:3px}.segmented{display:flex;gap:4px;border-radius:11px;background:#edf1e9;padding:4px;margin-top:10px}.segmented button{flex:1;border:0;border-radius:8px;background:transparent;color:#6b756b;padding:10px 4px;font-size:12px;font-weight:700}.segmented button.active{background:#fff;color:var(--forest);box-shadow:0 1px 5px #00000014}.addstop{display:flex;gap:9px;margin-top:11px}.addstop .btn{flex:1}.stop-list{display:grid;gap:10px;margin-top:13px}.stop-card{border:1px solid #e2e4db;border-radius:13px;background:#f9faf5;padding:12px}.stop-card-title{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:850;color:#54665b;margin-bottom:9px}.stop-card .field{margin-top:8px}.photo-input{display:none}.photo-upload{display:flex;gap:9px;align-items:center;background:#edf2ea;border:1px dashed #b6c5b8;border-radius:9px;padding:10px;color:#43614e;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px;min-height:47px}.stop-photo{width:66px;height:52px;object-fit:cover;border-radius:7px;flex-shrink:0}.stop-actions{display:flex;justify-content:space-between;margin-top:10px}.footnote{font-size:11px;color:#8a9387;line-height:1.65;margin-top:15px}.stage{min-width:0;position:relative;display:flex;flex-direction:column;overflow:hidden;background:#e7e9de}.map{flex:1;min-height:300px;position:relative;overflow:hidden;background-color:#e0e5d8;background-image:radial-gradient(ellipse at 45% 37%,#d8e4cf 0%,#e5e9de 45%,#cfded1 100%);touch-action:none;cursor:grab}.map.dragging{cursor:grabbing}.map.placing{cursor:crosshair}.tilelayer,.routecanvas{position:absolute;inset:0}.tilelayer{pointer-events:none;overflow:hidden;z-index:0}.tilelayer img{position:absolute;width:256px;height:256px;user-select:none;-webkit-user-drag:none;pointer-events:none;max-width:none}.routecanvas{width:100%;height:100%;pointer-events:none}.map-fade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(7,38,25,.16),transparent 26%,transparent 84%,rgba(244,247,237,.12))}.map-meta{position:absolute;top:25px;left:26px;z-index:2;max-width:calc(100% - 150px)}.meta-pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:9px 12px;border-radius:10px;background:rgba(255,253,245,.95);box-shadow:0 3px 22px #1c312b25;backdrop-filter:blur(12px);color:#234233;font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.title-float{font:normal 30px/1.12 Georgia,serif;color:#21392e;letter-spacing:-.6px;margin:13px 0 0;text-shadow:0 2px 15px #fff,0 0 2px #fff;max-width:440px}.map-tools{position:absolute;right:20px;top:24px;display:grid;gap:7px;z-index:2}.mapbtn{width:39px;height:39px;display:grid;place-items:center;background:#fffdf5;border:1px solid #e8eae1;border-radius:10px;color:var(--forest);font-size:22px;box-shadow:0 4px 16px #203a2e29}.mapbtn:hover{background:#f0f3e9}.map-status{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);z-index:2;background:rgba(255,252,245,.94);color:#385344;padding:9px 13px;font-size:12px;border-radius:9px;box-shadow:0 3px 12px #0001;text-align:center;pointer-events:none;max-width:min(400px,85%)}.map-status[hidden]{display:none}.map-status{pointer-events:auto}.retry-map{display:block;margin:8px auto 0;border:1px solid #789a86;background:#fffdf5;padding:6px 13px;border-radius:7px;color:#204934;font-weight:750;font-size:11px}.retry-map[hidden]{display:none}.map-attribution{position:absolute;bottom:10px;right:12px;background:#ffffffd9;padding:4px 7px;border-radius:4px;font-size:10px;z-index:2;color:#55645a}.map-attribution a{color:#335b64}.map-hint{position:absolute;bottom:23px;left:50%;transform:translateX(-50%);padding:12px 16px;border-radius:12px;color:#f5f3ea;background:rgba(20,54,42,.94);font-size:12px;z-index:5;box-shadow:var(--shadow);text-align:center;white-space:nowrap;max-width:90vw}.empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;text-align:center;background:#fffcf4ed;border:1px solid #edf0e7;border-radius:18px;padding:34px;box-shadow:var(--shadow);width:min(360px,calc(100% - 40px))}.empty h2{font:normal 31px Georgia,serif;color:var(--forest);margin:9px 0}.empty p{font-size:13px;line-height:1.55;color:#758074;margin-bottom:17px}.map-compass{font-size:34px;color:#b77045}.playbar{position:relative;z-index:3;background:var(--forest2);padding:16px 23px 18px;display:grid;grid-template-columns:auto minmax(90px,1fr) auto;align-items:center;gap:16px;color:white}.player-left{display:flex;align-items:center;gap:8px}.roundplay{background:#f1ebd8;border:0;width:47px;height:47px;border-radius:50%;font-size:19px;color:#214237;display:grid;place-items:center}.roundplay:disabled{opacity:.4}.resetplay{background:transparent;border:1px solid #59776a;color:#e4ecdf;width:37px;height:37px;border-radius:50%;font-size:17px}.scrub-top{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#b8c9b8;margin-bottom:8px}.scrub-top strong{color:#fff;font-size:12px;font-weight:700}.scrubber{width:100%;display:block;accent-color:var(--orange);cursor:pointer;margin:0;height:12px}.player-right{display:flex;align-items:center;gap:9px}.speedselect{appearance:none;border:1px solid #536f64;background:#254438;color:#e6eee5;padding:8px 24px 8px 9px;border-radius:9px;font-size:11px;font-weight:750}.muted{opacity:.66}.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;background:rgba(14,30,24,.49);padding:24px;backdrop-filter:blur(5px)}.overlay[hidden]{display:none!important}.storycard{background:#fcfbf4;width:min(430px,100%);border-radius:19px;padding:20px;box-shadow:0 28px 85px #051e1461;color:var(--forest);max-height:min(86dvh,720px);overflow-y:auto}.storycard.welcome{width:min(530px,100%);padding:35px}.story-photo{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;margin:0 0 15px}.storycard .eyebrow{color:#718577}.storycard h2{font:normal 33px/1.12 Georgia,serif;letter-spacing:-.6px;margin:10px 0 12px}.storycard p{font-size:14px;line-height:1.65;white-space:pre-wrap;color:#667368;margin-bottom:18px}.storycard button{width:100%}.storycard .flag{font-size:32px;color:var(--orange)}.storycard .story-count{margin-bottom:15px}.message{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1d4135;color:white;padding:12px 17px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:40;max-width:90vw;text-align:center;pointer-events:none}.message[hidden]{display:none}.preview-mode .sidebar,.viewer-mode .sidebar,.preview-mode .builder-control,.viewer-mode .builder-control{display:none!important}.preview-mode .workspace,.viewer-mode .workspace{grid-template-columns:1fr}.viewer-mode .topbar{height:68px}.viewer-mode .workspace{height:calc(100dvh - 68px)}.viewer-mode .brand-sub{display:none}.viewer-mode .topright{display:none}.preview-mode .map-meta,.viewer-mode .map-meta{top:23px;left:30px}.preview-mode .title-float,.viewer-mode .title-float{font-size:clamp(26px,4vw,43px)}.preview-mode .playbar,.viewer-mode .playbar{padding-left:clamp(16px,5vw,75px);padding-right:clamp(16px,5vw,75px)}.backpreview{display:none}.preview-mode .backpreview{display:inline-flex}.preview-mode .exportbtn{display:none}.viewer-mode .map,.preview-mode .map{min-height:250px}.tiny-status{display:none;color:#7b877a;font-size:11px}
+@media(max-width:950px){.workspace{grid-template-columns:390px minmax(0,1fr)}.sidebar{padding:16px}.topbar{padding:0 16px}.brandname{font-size:23px}.btn span.hide-mobile{display:none}}@media(max-width:740px){.topbar{height:67px}.workspace{height:calc(100dvh - 67px);display:flex;flex-direction:column;overflow:auto}.sidebar{order:2;overflow:visible;border-right:0;padding:15px 17px 45px}.stage{order:1;flex:none;height:min(65dvh,580px);min-height:360px}.map{min-height:240px}.playbar{padding:12px 13px;gap:8px}.map-meta{top:14px;left:13px;max-width:70%}.title-float{font-size:23px;margin-top:9px}.map-tools{right:12px;top:12px}.brand-sub{font-size:8px}.brandmark{width:33px;height:33px}.topright{gap:5px}.topright .btn{padding:8px 9px}.stats{grid-template-columns:1fr 1fr}.viewer-mode .workspace,.preview-mode .workspace{height:calc(100dvh - 67px);overflow:hidden}.viewer-mode .stage,.preview-mode .stage{height:100%;min-height:0}.viewer-mode .topbar{height:67px}.viewer-mode .map,.preview-mode .map{min-height:200px}.viewer-mode .brandname{font-size:22px}.playbar{grid-template-columns:auto 1fr auto}.player-right .muted{display:none}.storycard.welcome{padding:24px}.storycard h2{font-size:29px}}
+ .photo-strip{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.photo-thumb{position:relative}.photo-thumb img{width:67px;height:62px;object-fit:cover;border-radius:8px;border:1px solid #cfd9ce}.photo-thumb button{position:absolute;right:-4px;top:-5px;background:#fff;border:1px solid #b9c6b7;border-radius:50%;width:20px;height:20px;font-size:12px;line-height:1;color:#a44e3e}.photo-nav{display:flex;align-items:center;justify-content:center;gap:17px;margin:-5px 0 15px}.photo-nav[hidden]{display:none}.photo-nav button{width:40px!important;padding:7px;background:#eaf0e7;color:#2b5244;border:0;border-radius:8px}.photo-nav span{font-size:12px;color:#607265;font-weight:800}.map.moving{cursor:grabbing}.stop-card .position-slider{width:100%;accent-color:#315e4c;margin-top:9px}.position-label{font-size:11px;color:#687a6b}.story-divider{display:flex;gap:12px;align-items:center;margin:19px 0 8px;color:#b17853;font-size:10px;font-weight:850;letter-spacing:.17em}.story-divider:after{content:"";height:1px;background:#e6e6dc;flex:1}.story-divider+label.field{margin-top:8px}.bookend-upload{margin-top:9px}.bookend-upload:focus-within{outline:2px solid #6da69c;outline-offset:2px}.photo-thumb button:focus-visible{outline:2px solid #6da69c;outline-offset:2px}.story-photo{max-height:42vh;object-fit:contain;background:#eaece4} 
+/* Builder sections: native disclosures preserve all inputs while collapsed. */
+.builder-section>summary.stephead{cursor:pointer;list-style:none;user-select:none;padding:10px 8px;margin:-7px -8px 10px;border-radius:10px;min-height:44px;transition:background .15s}
+.builder-section>summary.stephead::-webkit-details-marker{display:none}
+.builder-section>summary.stephead::marker{content:""}
+.builder-section>summary.stephead:hover{background:#edf2e9}
+.builder-section>summary.stephead:focus-visible{outline:3px solid #6da69c;outline-offset:2px}
+.builder-section>summary.stephead::after{content:"";width:9px;height:9px;border-right:2px solid #6f8778;border-bottom:2px solid #6f8778;transform:rotate(45deg);transition:transform .16s;flex:none;margin-left:8px;margin-right:6px;margin-top:-5px}
+.builder-section[open]>summary.stephead::after{transform:rotate(225deg);margin-top:5px}
+.builder-section:not([open])>summary.stephead{margin-bottom:-6px}
+.builder-section .stepname{font-size:14px}
+.builder-section:not([open]){padding-bottom:19px}
+/* Opening and closing cards use center-cropped cover photos, not letterboxed images. */
+.storycard.welcome .story-photo{display:block;width:100%;height:min(34vh,300px);max-height:none;aspect-ratio:auto;object-fit:cover;object-position:center center;background:#eaece4}
+.storycard.welcome .story-photo[hidden]{display:none}
+.auto-setting{display:flex;align-items:flex-start;gap:12px;margin-top:14px;padding:13px 14px;background:#eef3eb;border:1px solid #d7e2d5;border-radius:12px;cursor:pointer}.auto-setting input{flex:none;width:17px;height:17px;margin:2px 0 0;accent-color:var(--forest);cursor:pointer}.auto-setting strong{display:block;font-size:12px;color:var(--forest);line-height:1.35}.auto-setting small{display:block;margin-top:5px;color:#6f7d70;font-size:11px;line-height:1.5}.auto-countdown{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 1px 0;color:#657668;font-size:12px;font-weight:700}.auto-countdown[hidden]{display:none!important}.auto-countdown button{width:auto!important;flex:none;border:1px solid #b6caba;border-radius:8px;background:#edf3eb;color:#285443;padding:7px 10px;font-size:11px;font-weight:800}.auto-countdown button:hover{background:#dfeadf}
+
+/* V12: compact story chapters + GPS-assisted batch photo review. */
+.bulk-photos{margin-top:12px}.bulk-upload{display:flex;align-items:center;gap:12px;border:1.5px dashed #b1c7b9;border-radius:12px;background:#f0f5eb;padding:13px;cursor:pointer;color:#284e3f}.bulk-upload:hover{background:#e8f0e2}.bulk-upload>span:first-child{font-size:26px}.bulk-upload strong,.bulk-upload small{display:block}.bulk-upload strong{font-size:13px}.bulk-upload small{font-size:11px;color:#62786a;margin-top:4px;line-height:1.45}.bulk-upload:focus-within{outline:2px solid #6da69c}.bulk-photos #bulkPhotoStatus:not(:empty){margin-top:9px}.unplaced-panel{background:#f6f6f0;border:1px solid #dfe5d9;border-radius:12px;margin-top:12px;padding:12px}.unplaced-panel[hidden]{display:none}.unplaced-heading{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin-bottom:5px;color:#2d493d}.unplaced-entry{display:flex;gap:9px;align-items:flex-start;border-top:1px solid #e3e7dd;margin-top:10px;padding-top:10px}.unplaced-entry>img{width:62px;height:62px;border-radius:7px;object-fit:cover;flex:none}.unplaced-entry .unplaced-info{min-width:0;flex:1}.unplaced-entry .unplaced-name{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:750;color:#345342}.unplaced-entry select{width:100%;font-size:11px;margin-top:6px;background:white;border:1px solid #ccd9cf;border-radius:7px;padding:6px}.unplaced-actions{display:flex;justify-content:space-between;gap:7px;margin-top:5px}.unplaced-actions button{background:none;border:0;color:#325a48;font-size:11px;text-decoration:underline;padding:4px 0;font-weight:750}.unplaced-actions .remove-photo{color:#9b5141}
+.moments-toggle{white-space:nowrap;border:1px solid #59776a;background:#234b3d;color:#f9f6eb;border-radius:9px;min-height:38px;padding:7px 10px;font-size:12px;font-weight:750;display:flex;gap:6px;align-items:center}.moments-toggle:hover{background:#315b4b}.moments-toggle[aria-expanded="true"]{background:#ececd8;color:#193b32}.moments-toggle #momentsBadge{background:#3e6957;color:#fff;border-radius:12px;padding:1px 6px;font-size:10px}.moments-drawer{position:absolute;bottom:93px;right:18px;width:min(355px,calc(100% - 36px));max-height:min(60vh,530px);z-index:30;overflow:hidden;border-radius:16px;background:#fffcf5;box-shadow:0 18px 58px #0c302d58;border:1px solid #dce5d9;display:flex;flex-direction:column}.moments-drawer[hidden]{display:none}.moments-drawer-head{display:flex;align-items:flex-start;justify-content:space-between;padding:17px 18px 13px;border-bottom:1px solid #e7ebdf}.moments-drawer-head strong{font:normal 21px Georgia,serif;color:#1b4035}.moments-drawer-head p{font-size:11px;color:#7a887a;margin-top:3px}.moments-drawer-head button{font-size:24px;color:#456353;border:0;background:transparent;padding:0 4px}.moments-items{overflow:auto;padding:7px}.moment-jump{display:flex;align-items:center;gap:11px;text-align:left;width:100%;background:none;border:0;border-radius:10px;padding:10px;color:#253c31}.moment-jump:hover,.moment-jump:focus-visible{background:#edf3e9}.moment-jump .jump-number{display:grid;place-items:center;width:29px;height:29px;flex:none;background:#e0e9de;border-radius:50%;color:#315b48;font-weight:850;font-size:11px}.moment-jump .jump-text{flex:1;min-width:0}.moment-jump .jump-text strong{font-size:12px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.moment-jump .jump-text small{display:block;color:#788779;margin-top:3px}.moment-jump img{height:43px;width:52px;object-fit:cover;border-radius:7px}.moment-jump .jump-arrow{font-size:19px;color:#63846c}.moments-empty{padding:19px;color:#6e7b71;text-align:center;font-size:12px;line-height:1.6}
+@media(max-width:970px){.player-left{gap:5px}.moments-toggle span:not(#momentsBadge){display:none}.playbar{gap:9px;padding:12px}.moments-toggle{padding:6px 8px}}
+@media(max-width:740px){.moments-drawer{bottom:78px;right:10px}.moments-toggle{min-height:33px}}
+
+/* ---- editor additions (not V12): the preview shows the real exported storybook in a frame where V12 switched its own page into preview mode ---- */
+.preview-stage{position:relative;min-width:0;min-height:0;background:#e7e9de}
+.preview-stage iframe{display:block;border:0;width:100%;height:100%}
+@media(max-width:740px){.preview-mode .preview-stage{flex:1;height:100%}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo"><div class="brandmark" aria-hidden="true">✳</div><div><div class="brandname">Pruyn Paths<span style="color:var(--orange)">.</span></div><div class="brand-sub">FIELD NOTES FROM THE WHOLE PACK</div></div></div>
+  <div class="topright">
+    <span class="tiny-status" id="modeText">STORY EDITOR</span>
+    <button id="saveDraftBtn" class="btn builder-control" title="Save an editable local project">↓ <span class="hide-mobile">Save draft</span></button>
+    <button id="previewBtn" class="btn builder-control">▶ <span class="hide-mobile">Preview story</span></button>
+    <button id="exportBtn" class="btn primary builder-control exportbtn" disabled>↗ <span class="hide-mobile">Export story</span></button>
+    <button id="backPreviewBtn" class="btn backpreview">← Back to editing</button>
+  </div>
+</header>
+<main class="workspace">
+  <aside class="sidebar" aria-label="Adventure editor">
+    <div class="section"><div class="eyebrow" style="color:#b07a56">A LITTLE MACHINE FOR KEEPSAKES</div><h1>Take them<br><em>along.</em></h1><p class="subline">Turn a real trail into a guided little adventure. No account, no app, just your stories.</p></div>
+    <details class="section builder-section" open>
+      <summary class="stephead" title="Click to expand or collapse this section"><div class="stepname"><span class="num">1</span> Find your path</div><span class="eyebrow" style="color:#9caaa0">GPX</span></summary>
+      <label class="dropzone" id="dropZone" for="fileInput"><span class="dropicon">↥</span><strong>Drop a GPX trail here</strong><p>or click to browse for an AllTrails track</p></label>
+      <input type="file" id="fileInput" accept=".gpx,.xml,.json,application/gpx+xml,application/json" hidden>
+      <div class="underlinks"><button class="inlinebtn" id="sampleBtn">Try sample GPX route ↗</button><button class="inlinebtn" id="openDraftBtn">Open draft</button></div>
+      <p class="helper" id="trackStatus" aria-live="polite">GPX Track or GPX Route. Your file stays in this browser.</p>
+      <div class="stats" id="stats" hidden><div class="stat"><b id="distanceStat">0.0 mi</b><span>Trail distance</span></div><div class="stat"><b id="pointsStat">0</b><span>GPS points</span></div></div>
+    </details>
+    <details class="section builder-section" open>
+      <summary class="stephead" title="Click to expand or collapse this section"><div class="stepname"><span class="num">2</span> Set the scene</div></summary>
+      <label class="field"><span>Adventure title</span><input id="storyTitle" maxlength="100" class="input" value="A Little Adventure" placeholder="e.g. Another Saturday on Mount Tam"></label>
+      <div class="story-divider"><span>✦ THE OPENING</span></div>
+      <label class="field"><span>Opening headline (optional)</span><input id="openingTitle" maxlength="110" class="input" placeholder="Uses your adventure title if left blank"></label>
+      <label class="field"><span>Opening message</span><textarea id="storyIntro" maxlength="1400" class="textarea" rows="3" placeholder="Set the scene. Who came along? What were you hoping to find?"></textarea></label>
+      <div id="openingPhotoStrip" class="photo-strip" aria-live="polite"></div>
+      <label class="photo-upload bookend-upload"><span>＋</span><span id="openingPhotoLabel">Add opening photos (0)</span><input id="openingPhotoInput" class="photo-input" type="file" accept="image/*" multiple aria-label="Add opening photos"></label>
+    </details>
+    <details class="section builder-section" open>
+      <summary class="stephead" title="Click to expand or collapse this section"><div class="stepname"><span class="num">3</span> Frame the journey</div></summary>
+      <p class="helper">Fixed reveals the full trail as you go. Follow moves the map with your adventure. <span id="cameraNote">This is how the story opens; viewers can switch at any time.</span></p>
+      <div class="segmented" role="group" aria-label="Camera mode"><button id="fixedBtn" aria-pressed="false">◻ Fixed view</button><button id="followBtn" class="active" aria-pressed="true">⌖ Follow along</button></div>
+    </details>
+    <details class="section builder-section" open>
+      <summary class="stephead" title="Click to expand or collapse this section"><div class="stepname"><span class="num">4</span> Add moments</div><span id="stopCounter" class="eyebrow" style="color:#8d9b8e">0 MOMENTS</span></summary>
+      <p class="helper">Mark the places where the story pauses. Tell a quick tale, show photos, or both. Drag a numbered marker to move it along the trail.</p>
+      <label class="auto-setting"><input type="checkbox" id="autoAdvanceMoments"><span><strong>Auto-continue moments after 10 seconds</strong><small>Off by default. Opening and closing cards always wait. Viewers can choose to stay longer.</small></span></label>
+      <div class="bulk-photos builder-control" id="bulkPhotosArea">
+        <label class="bulk-upload" for="bulkPhotoInput"><span aria-hidden="true">▧</span><span><strong>Add a batch of photos</strong><small>Geotagged JPEGs can be placed along the trail automatically; review everything before sharing.</small></span></label>
+        <input type="file" id="bulkPhotoInput" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif" multiple hidden>
+        <p id="bulkPhotoStatus" class="helper" role="status" aria-live="polite"></p>
+        <div class="unplaced-panel" id="unplacedPanel" hidden><div class="unplaced-heading"><strong>Photos awaiting a moment</strong><span id="unplacedCount"></span></div><p class="helper">Choose an existing moment or click <em>Place on trail</em>, then pick a location on the map.</p><div id="unplacedList"></div></div>
+      </div>
+      <div class="addstop"><button id="addStopBtn" class="btn" disabled>＋ Add a moment</button></div>
+      <div id="stopList" class="stop-list"></div>
+    </details>
+    <details class="section builder-section" open>
+      <summary class="stephead" title="Click to expand or collapse this section"><div class="stepname"><span class="num">5</span> Sign off</div></summary>
+      <p class="helper">How should this adventure end? Add a final thought, a photo, or a farewell from the pack.</p>
+      <div class="story-divider"><span>✦ THE SIGN-OFF</span></div>
+      <label class="field"><span>Closing headline</span><input id="endingTitle" maxlength="110" class="input" value="And that’s a wrap." placeholder="The end of the trail"></label>
+      <label class="field"><span>Closing message</span><textarea id="endingMessage" maxlength="1400" class="textarea" rows="3" placeholder="One last thought before sending everyone home.">Every good adventure deserves a good story. Thanks for coming along.</textarea></label>
+      <div id="endingPhotoStrip" class="photo-strip" aria-live="polite"></div>
+      <label class="photo-upload bookend-upload"><span>＋</span><span id="endingPhotoLabel">Add closing photos (0)</span><input id="endingPhotoInput" class="photo-input" type="file" accept="image/*" multiple aria-label="Add closing photos"></label>
+    </details>
+    <div class="footnote">The exported story is one HTML file with its route and photos. Live map backgrounds use USGS topographic imagery (with an alternate provider if needed) and require internet. There are no external JavaScript libraries or accounts.</div>
+  </aside>
+  <section class="stage" id="editStage" aria-label="Adventure map">
+    <div class="map" id="mapArea">
+      <div class="tilelayer" id="tileLayer"></div>
+      <canvas class="routecanvas" id="routeCanvas"></canvas>
+      <div class="map-status" id="mapStatus" hidden role="status"><span id="mapStatusText">Loading topographic map…</span> <button class="retry-map" id="retryMap" hidden type="button">Retry map ↻</button></div>
+      <div class="map-fade"></div>
+      <div class="map-meta"><span class="meta-pill">✦ <span id="mapKicker">THE ADVENTURE AWAITS</span></span><h2 class="title-float" id="mapTitle">Somewhere wonderful.</h2></div>
+      <div class="map-tools"><button class="mapbtn" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button><button class="mapbtn" id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button><button class="mapbtn" id="fitBtn" title="Fit the entire route" aria-label="Fit the route" style="font-size:17px">⌗</button></div>
+      <div class="map-attribution" id="mapAttribution"><a href="https://www.usgs.gov/the-national-map-data-delivery" target="_blank" rel="noopener">Map: USGS The National Map</a></div>
+      <div class="empty" id="emptyState"><div class="map-compass">✳</div><h2>Every path has a story.</h2><p>Import a GPX file or explore the sample route.</p><button class="btn primary" id="emptySampleBtn">Explore sample route →</button></div>
+      <div class="map-hint" id="mapHint" hidden>Click the trail to place a moment · Esc to cancel</div>
+    </div>
+  </section>
+  <section class="preview-stage" id="previewStage" aria-label="Story preview" hidden><iframe id="previewFrame" title="Story preview"></iframe></section>
+</main>
+<div class="message" id="toast" hidden role="status"></div>
+<script>"use strict";
+(() => {
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: !0, configurable: !0, writable: !0, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key != "symbol" ? key + "" : key, value);
+
+  // <define:__PLAYER__>
+  var define_PLAYER_default = { template: `<!doctype html>
+\x3C!--
+  Pruyn Paths storybook: one self-contained HTML file.
+  The story (route, text, photos) is the JSON block with id="adventure-data" below; the player is the script after it.
+  Open it in any current web browser. The map pictures load from USGS and need an internet connection.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Pruyn Paths \u2014 Adventure Storybook</title>
+<style>/*STYLE*/\x3C/style>
+<noscript><style>.workspace{display:none}\x3C/style></noscript>
+</head>
+<body class="viewer-mode">
+<header class="topbar">
+  <div class="logo"><div class="brandmark" aria-hidden="true">\u2733</div><div><div class="brandname">Pruyn Paths<span style="color:var(--orange)">.</span></div></div></div>
+</header>
+\x3C!--NOSCRIPT-->
+<main class="workspace">
+  <section class="stage" aria-label="Adventure map and playback">
+    <div class="map" id="mapArea">
+      <div class="tilelayer" id="tileLayer"></div>
+      <canvas class="routecanvas" id="routeCanvas"></canvas>
+      <div class="map-status" id="mapStatus" hidden role="status"><span id="mapStatusText">Loading topographic map\u2026</span> <button class="retry-map" id="retryMap" hidden type="button">Retry map \u21BB</button></div>
+      <div class="map-fade"></div>
+      <div class="map-meta"><span class="meta-pill">\u2726 <span id="mapKicker">THE ADVENTURE AWAITS</span></span><h2 class="title-float" id="mapTitle">Somewhere wonderful.</h2></div>
+      <div class="map-tools"><button class="mapbtn" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button><button class="mapbtn" id="zoomOut" title="Zoom out" aria-label="Zoom out">\u2212</button><button class="mapbtn" id="fitBtn" title="Fit the entire route" aria-label="Fit the route" style="font-size:17px">\u2317</button><button class="mapbtn" id="followToggle" title="Follow the journey" aria-label="Follow the journey" aria-pressed="true" style="font-size:17px">\u2316</button></div>
+      <div class="map-attribution" id="mapAttribution"><a href="https://www.usgs.gov/the-national-map-data-delivery" target="_blank" rel="noopener">Map: USGS The National Map</a></div>
+      <div class="empty" id="emptyState" hidden><div class="map-compass">\u2733</div><h2>Every path has a story.</h2><p>Open a Pruyn Paths story to begin.</p></div>
+      <div class="overlay" id="storyOverlay" hidden>
+        <div class="storycard" id="overlayCard" role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+          <div class="eyebrow" id="overlayKicker">FIELD NOTE</div>
+          <img id="overlayPhoto" class="story-photo" alt="Adventure moment photo" hidden /><div id="photoNav" class="photo-nav" hidden><button id="photoPrev" type="button" aria-label="Previous photo">\u2190</button><span id="photoCount"></span><button id="photoNext" type="button" aria-label="Next photo">\u2192</button></div>
+          <h2 id="overlayTitle">A moment on the trail</h2>
+          <p id="overlayText"></p>
+          <button id="overlayContinue" class="btn primary">Continue the journey \u2192</button>
+          <div class="auto-countdown" id="autoCountdown" hidden aria-live="off"><span id="autoCountdownText">Continuing in 10s</span><button id="autoStayBtn" type="button">Stay here</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="playbar">
+      <div class="player-left"><button class="roundplay" id="playBtn" disabled title="Play or pause" aria-label="Play or pause">\u25B6</button><button class="resetplay" id="resetBtn" disabled title="Restart" aria-label="Restart">\u21BA</button><button class="moments-toggle" id="momentsBtn" disabled aria-expanded="false" aria-controls="momentsDrawer" title="Jump to any moment">\u2637 <span>Moments</span> <span id="momentsBadge">0</span></button></div>
+      <div><div class="scrub-top"><strong id="distanceProgress">0.0 mi explored</strong><span id="percentLabel">0%</span></div><input id="progressRange" class="scrubber" type="range" min="0" max="1000" value="0" disabled aria-label="Journey progress" /></div>
+      <div class="player-right"><span class="muted" style="font-size:11px">SPEED</span><select id="speedSelect" class="speedselect" aria-label="Playback speed; 1\xD7 takes around 90 seconds of travel"><option value="0.5">50% \xB7 0.5\xD7</option><option value="1" selected>100% \xB7 1\xD7</option><option value="1.5">150% \xB7 1.5\xD7</option><option value="2">200% \xB7 2\xD7</option><option value="3">300% \xB7 3\xD7</option></select></div>
+    </div>
+    <aside class="moments-drawer" id="momentsDrawer" aria-label="Jump to a moment" hidden>
+      <div class="moments-drawer-head"><div><strong>Moments along the way</strong><p>Jump in wherever you like.</p></div><button id="closeMoments" aria-label="Close moments list" type="button">\xD7</button></div>
+      <div id="momentsList" class="moments-items"></div>
+    </aside>
+  </section>
+</main>
+<div class="message" id="toast" hidden role="status"></div>
+\x3C!--STORY-->
+\x3Cscript>/*SCRIPT*/<\/script>
+</body>
+</html>
+`, css: `/* Viewer stylesheet. Rules are taken verbatim from the frozen V12 reference (reference/prototype-v12.html), keeping only the selectors the viewer uses; editor-only rules are left out. */
+:root{--forest:#193b32;--forest2:#102d27;--sage:#dfe8d9;--cream:#f6f3e9;--paper:#fffcf5;--ink:#1f2925;--quiet:#768078;--line:#e2e3d9;--orange:#eb824e;--accent:#df7747;--white:#fff;--shadow:0 15px 50px rgba(14,38,31,.13)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--cream);color:var(--ink);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.42}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #6da69c;outline-offset:2px}
+h1,h2,h3,p{margin:0}
+.serif{font-family:Georgia,"Times New Roman",serif}
+.eyebrow{text-transform:uppercase;letter-spacing:.19em;font-size:10px;font-weight:800}
+.topbar{height:79px;display:flex;align-items:center;justify-content:space-between;padding:0 25px;gap:15px;border-bottom:1px solid var(--line);background:var(--paper);position:relative;z-index:5}
+.logo{display:flex;align-items:center;gap:13px;min-width:0}
+.brandmark{display:grid;place-items:center;width:39px;height:39px;background:var(--forest);color:var(--cream);border-radius:13px;transform:rotate(-8deg);font-size:21px}
+.brandname{font-family:Georgia,serif;font-size:26px;letter-spacing:-1.6px;white-space:nowrap;line-height:1}
+.btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:11px;padding:10px 14px;background:var(--paper);color:var(--ink);font-size:13px;font-weight:700;transition:background .12s,transform .12s}
+.btn:hover:not(:disabled){background:#eef1e9}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.primary{background:var(--forest);color:white;border-color:var(--forest)}
+.btn.primary:hover:not(:disabled){background:#2c5749}
+.workspace{display:grid;grid-template-columns:clamp(440px,36vw,560px) minmax(0,1fr);height:calc(100dvh - 79px);min-height:500px}
+.stage{min-width:0;position:relative;display:flex;flex-direction:column;overflow:hidden;background:#e7e9de}
+.map{flex:1;min-height:300px;position:relative;overflow:hidden;background-color:#e0e5d8;background-image:radial-gradient(ellipse at 45% 37%,#d8e4cf 0%,#e5e9de 45%,#cfded1 100%);touch-action:none;cursor:grab}
+.map.dragging{cursor:grabbing}
+.tilelayer,.routecanvas{position:absolute;inset:0}
+.tilelayer{pointer-events:none;overflow:hidden;z-index:0}
+.tilelayer img{position:absolute;width:256px;height:256px;user-select:none;-webkit-user-drag:none;pointer-events:none;max-width:none}
+.routecanvas{width:100%;height:100%;pointer-events:none}
+.map-fade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(7,38,25,.16),transparent 26%,transparent 84%,rgba(244,247,237,.12))}
+.map-meta{position:absolute;top:25px;left:26px;z-index:2;max-width:calc(100% - 150px)}
+.meta-pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:9px 12px;border-radius:10px;background:rgba(255,253,245,.95);box-shadow:0 3px 22px #1c312b25;backdrop-filter:blur(12px);color:#234233;font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.title-float{font:normal 30px/1.12 Georgia,serif;color:#21392e;letter-spacing:-.6px;margin:13px 0 0;text-shadow:0 2px 15px #fff,0 0 2px #fff;max-width:440px}
+.map-tools{position:absolute;right:20px;top:24px;display:grid;gap:7px;z-index:2}
+.mapbtn{width:39px;height:39px;display:grid;place-items:center;background:#fffdf5;border:1px solid #e8eae1;border-radius:10px;color:var(--forest);font-size:22px;box-shadow:0 4px 16px #203a2e29}
+.mapbtn:hover{background:#f0f3e9}
+.map-status{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);z-index:2;background:rgba(255,252,245,.94);color:#385344;padding:9px 13px;font-size:12px;border-radius:9px;box-shadow:0 3px 12px #0001;text-align:center;pointer-events:none;max-width:min(400px,85%)}
+.map-status[hidden]{display:none}
+.map-status{pointer-events:auto}
+.retry-map{display:block;margin:8px auto 0;border:1px solid #789a86;background:#fffdf5;padding:6px 13px;border-radius:7px;color:#204934;font-weight:750;font-size:11px}
+.retry-map[hidden]{display:none}
+.map-attribution{position:absolute;bottom:10px;right:12px;background:#ffffffd9;padding:4px 7px;border-radius:4px;font-size:10px;z-index:2;color:#55645a}
+.map-attribution a{color:#335b64}
+.empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;text-align:center;background:#fffcf4ed;border:1px solid #edf0e7;border-radius:18px;padding:34px;box-shadow:var(--shadow);width:min(360px,calc(100% - 40px))}
+.empty h2{font:normal 31px Georgia,serif;color:var(--forest);margin:9px 0}
+.empty p{font-size:13px;line-height:1.55;color:#758074;margin-bottom:17px}
+.map-compass{font-size:34px;color:#b77045}
+.playbar{position:relative;z-index:3;background:var(--forest2);padding:16px 23px 18px;display:grid;grid-template-columns:auto minmax(90px,1fr) auto;align-items:center;gap:16px;color:white}
+.player-left{display:flex;align-items:center;gap:8px}
+.roundplay{background:#f1ebd8;border:0;width:47px;height:47px;border-radius:50%;font-size:19px;color:#214237;display:grid;place-items:center}
+.roundplay:disabled{opacity:.4}
+.resetplay{background:transparent;border:1px solid #59776a;color:#e4ecdf;width:37px;height:37px;border-radius:50%;font-size:17px}
+.scrub-top{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#b8c9b8;margin-bottom:8px}
+.scrub-top strong{color:#fff;font-size:12px;font-weight:700}
+.scrubber{width:100%;display:block;accent-color:var(--orange);cursor:pointer;margin:0;height:12px}
+.player-right{display:flex;align-items:center;gap:9px}
+.speedselect{appearance:none;border:1px solid #536f64;background:#254438;color:#e6eee5;padding:8px 24px 8px 9px;border-radius:9px;font-size:11px;font-weight:750}
+.muted{opacity:.66}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;background:rgba(14,30,24,.49);padding:24px;backdrop-filter:blur(5px)}
+.overlay[hidden]{display:none!important}
+.storycard{background:#fcfbf4;width:min(430px,100%);border-radius:19px;padding:20px;box-shadow:0 28px 85px #051e1461;color:var(--forest);max-height:min(86dvh,720px);overflow-y:auto}
+.storycard.welcome{width:min(530px,100%);padding:35px}
+.story-photo{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;margin:0 0 15px}
+.storycard .eyebrow{color:#718577}
+.storycard h2{font:normal 33px/1.12 Georgia,serif;letter-spacing:-.6px;margin:10px 0 12px}
+.storycard p{font-size:14px;line-height:1.65;white-space:pre-wrap;color:#667368;margin-bottom:18px}
+.storycard button{width:100%}
+.message{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1d4135;color:white;padding:12px 17px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:40;max-width:90vw;text-align:center;pointer-events:none}
+.message[hidden]{display:none}
+.viewer-mode .workspace{grid-template-columns:1fr}
+.viewer-mode .topbar{height:68px}
+.viewer-mode .workspace{height:calc(100dvh - 68px)}
+.viewer-mode .map-meta{top:23px;left:30px}
+.viewer-mode .title-float{font-size:clamp(26px,4vw,43px)}
+.viewer-mode .playbar{padding-left:clamp(16px,5vw,75px);padding-right:clamp(16px,5vw,75px)}
+.viewer-mode .map{min-height:250px}
+@media(max-width:950px){.workspace{grid-template-columns:390px minmax(0,1fr)}
+.topbar{padding:0 16px}
+.brandname{font-size:23px}
+}@media(max-width:740px){.topbar{height:67px}
+.workspace{height:calc(100dvh - 67px);display:flex;flex-direction:column;overflow:auto}
+.stage{order:1;flex:none;height:min(65dvh,580px);min-height:360px}
+.map{min-height:240px}
+.playbar{padding:12px 13px;gap:8px}
+.map-meta{top:14px;left:13px;max-width:70%}
+.title-float{font-size:23px;margin-top:9px}
+.map-tools{right:12px;top:12px}
+.brandmark{width:33px;height:33px}
+.viewer-mode .workspace{height:calc(100dvh - 67px);overflow:hidden}
+.viewer-mode .stage{height:100%;min-height:0}
+.viewer-mode .topbar{height:67px}
+.viewer-mode .map{min-height:200px}
+.viewer-mode .brandname{font-size:22px}
+.playbar{grid-template-columns:auto 1fr auto}
+.player-right .muted{display:none}
+.storycard.welcome{padding:24px}
+.storycard h2{font-size:29px}
+}.photo-nav{display:flex;align-items:center;justify-content:center;gap:17px;margin:-5px 0 15px}
+.photo-nav[hidden]{display:none}
+.photo-nav button{width:40px!important;padding:7px;background:#eaf0e7;color:#2b5244;border:0;border-radius:8px}
+.photo-nav span{font-size:12px;color:#607265;font-weight:800}
+.story-photo{max-height:42vh;object-fit:contain;background:#eaece4}
+.storycard.welcome .story-photo{display:block;width:100%;height:min(34vh,300px);max-height:none;aspect-ratio:auto;object-fit:cover;object-position:center center;background:#eaece4}
+.storycard.welcome .story-photo[hidden]{display:none}
+.auto-countdown{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 1px 0;color:#657668;font-size:12px;font-weight:700}
+.auto-countdown[hidden]{display:none!important}
+.auto-countdown button{width:auto!important;flex:none;border:1px solid #b6caba;border-radius:8px;background:#edf3eb;color:#285443;padding:7px 10px;font-size:11px;font-weight:800}
+.auto-countdown button:hover{background:#dfeadf}
+.moments-toggle{white-space:nowrap;border:1px solid #59776a;background:#234b3d;color:#f9f6eb;border-radius:9px;min-height:38px;padding:7px 10px;font-size:12px;font-weight:750;display:flex;gap:6px;align-items:center}
+.moments-toggle:hover{background:#315b4b}
+.moments-toggle[aria-expanded="true"]{background:#ececd8;color:#193b32}
+.moments-toggle #momentsBadge{background:#3e6957;color:#fff;border-radius:12px;padding:1px 6px;font-size:10px}
+.moments-drawer{position:absolute;bottom:93px;right:18px;width:min(355px,calc(100% - 36px));max-height:min(60vh,530px);z-index:30;overflow:hidden;border-radius:16px;background:#fffcf5;box-shadow:0 18px 58px #0c302d58;border:1px solid #dce5d9;display:flex;flex-direction:column}
+.moments-drawer[hidden]{display:none}
+.moments-drawer-head{display:flex;align-items:flex-start;justify-content:space-between;padding:17px 18px 13px;border-bottom:1px solid #e7ebdf}
+.moments-drawer-head strong{font:normal 21px Georgia,serif;color:#1b4035}
+.moments-drawer-head p{font-size:11px;color:#7a887a;margin-top:3px}
+.moments-drawer-head button{font-size:24px;color:#456353;border:0;background:transparent;padding:0 4px}
+.moments-items{overflow:auto;padding:7px}
+.moment-jump{display:flex;align-items:center;gap:11px;text-align:left;width:100%;background:none;border:0;border-radius:10px;padding:10px;color:#253c31}
+.moment-jump:hover,.moment-jump:focus-visible{background:#edf3e9}
+.moment-jump .jump-number{display:grid;place-items:center;width:29px;height:29px;flex:none;background:#e0e9de;border-radius:50%;color:#315b48;font-weight:850;font-size:11px}
+.moment-jump .jump-text{flex:1;min-width:0}
+.moment-jump .jump-text strong{font-size:12px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.moment-jump .jump-text small{display:block;color:#788779;margin-top:3px}
+.moment-jump img{height:43px;width:52px;object-fit:cover;border-radius:7px}
+.moment-jump .jump-arrow{font-size:19px;color:#63846c}
+.moments-empty{padding:19px;color:#6e7b71;text-align:center;font-size:12px;line-height:1.6}
+@media(max-width:970px){.player-left{gap:5px}
+.moments-toggle span:not(#momentsBadge){display:none}
+.playbar{gap:9px;padding:12px}
+.moments-toggle{padding:6px 8px}
+}@media(max-width:740px){.moments-drawer{bottom:78px;right:10px}
+.moments-toggle{min-height:33px}
+}/* Follow-the-journey toggle (not in V12, whose viewer had no camera control): pressed = following. */
+.mapbtn[aria-pressed="true"],.mapbtn[aria-pressed="true"]:hover{background:var(--forest);border-color:var(--forest);color:#f9f6eb}
+
+/* No-JavaScript fallback: the template hides the player shell inside <noscript>; the story is shown as plain text instead. */
+.nojs{max-width:640px;margin:0 auto;padding:28px 20px 60px;line-height:1.6;color:var(--ink)}
+.nojs h1{font:normal 30px/1.2 Georgia,serif;color:var(--forest);margin:0 0 10px}
+.nojs h2{font:normal 22px/1.3 Georgia,serif;color:var(--forest);margin:26px 0 8px}
+.nojs ol{padding-left:22px}.nojs li{margin:10px 0}.nojs p{white-space:pre-line}
+.nojs .nojs-note{margin-top:30px;padding:12px 14px;background:#eef3eb;border:1px solid #d7e2d5;border-radius:12px;font-size:14px;white-space:normal}
+`, script: `"use strict";
+(() => {
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: !0, configurable: !0, writable: !0, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key != "symbol" ? key + "" : key, value);
+
+  // src/core/geo.ts
+  var clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  function world(lat, lon, z) {
+    let size = 256 * 2 ** z, sin = Math.sin(clamp(lat, -85.0511, 85.0511) * Math.PI / 180);
+    return { x: (lon + 180) / 360 * size, y: (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * size };
+  }
+  function coords(x, y, z) {
+    let size = 256 * 2 ** z, lon = x / size * 360 - 180, v = Math.PI * (1 - 2 * y / size);
+    return { lat: Math.atan(Math.sinh(v)) * 180 / Math.PI, lon };
+  }
+  function haversine(a, b) {
+    let t = Math.PI / 180, dlat = (b.lat - a.lat) * t, dlon = (b.lon - a.lon) * t, v = Math.sin(dlat / 2) ** 2 + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dlon / 2) ** 2;
+    return 2 * 6371e3 * Math.asin(Math.sqrt(clamp(v, 0, 1)));
+  }
+  var formatMiles = (metres) => (metres / 1609.344).toFixed(1) + " mi";
+
+  // src/core/story.ts
+  var DEFAULT_ENDING_TITLE = "And that\\u2019s a wrap.", DEFAULT_ENDING_MESSAGE = "Every good adventure deserves a good story. Thanks for coming along.", LIMITS = { minPoints: 2, maxPoints: 1e5, maxMoments: 100, title: 100, bookendTitle: 110, text: 1400 }, StoryError = class extends Error {
+  }, isObj = (v) => typeof v == "object" && v !== null, oneLine = (s) => s.replace(/[\\r\\n]/g, ""), multiLine = (s) => s.replace(/\\r\\n?/g, \`
+\`), bookendPhotos = (v) => Array.isArray(v) ? v.filter((x) => typeof x == "string" && /^data:image\\/(png|jpeg|webp|gif);base64,/.test(x)) : [];
+  function momentFrom(s, freshId) {
+    let photos = Array.isArray(s.photos) ? s.photos.filter((x) => typeof x == "string" && x.startsWith("data:image/")) : typeof s.photo == "string" && s.photo.startsWith("data:image/") ? [s.photo] : [];
+    return { id: String(s.id || freshId()), at: clamp(s.at, 0, 1), title: String(s.title || ""), caption: String(s.caption || ""), photos };
+  }
+  function parseStory(data) {
+    if (!isObj(data)) throw new StoryError("This is not a Pruyn Paths story.");
+    let t = data.track;
+    if (!Array.isArray(t) || t.length < LIMITS.minPoints || t.length > LIMITS.maxPoints || t.some((p) => !isObj(p) || !Number.isFinite(p.lat) || !Number.isFinite(p.lon))) throw new StoryError("Invalid route data.");
+    let track = t.map((p) => ({ lat: p.lat, lon: p.lon })), raw = Array.isArray(data.stops) ? data.stops.filter((s) => isObj(s) && Number.isFinite(s.at)).slice(0, LIMITS.maxMoments) : [], used = new Set(raw.map((s) => String(s.id || "")).filter(Boolean)), n = 0, freshId = () => {
+      let id;
+      do
+        id = "m" + ++n;
+      while (used.has(id));
+      return used.add(id), id;
+    }, moments = raw.map((s) => momentFrom(s, freshId));
+    return {
+      title: oneLine(String(data.title || "An Adventure").slice(0, LIMITS.title)).trim() || "An Adventure",
+      intro: multiLine(String(data.intro || "").slice(0, LIMITS.text)).trim(),
+      openingTitle: oneLine(String(data.openingTitle ?? "").slice(0, LIMITS.bookendTitle)).trim(),
+      endingTitle: oneLine(String(data.endingTitle ?? DEFAULT_ENDING_TITLE).slice(0, LIMITS.bookendTitle)).trim(),
+      endingMessage: multiLine(String(data.endingMessage ?? DEFAULT_ENDING_MESSAGE).slice(0, LIMITS.text)).trim(),
+      openingPhotos: bookendPhotos(data.openingPhotos),
+      endingPhotos: bookendPhotos(data.endingPhotos),
+      track,
+      moments,
+      camera: data.camera === "follow" ? "follow" : "fixed",
+      filename: String(data.filename || "Saved adventure"),
+      sourcePoints: Number(data.sourcePoints) || track.length,
+      demo: !!data.demo,
+      autoAdvanceMoments: data.autoAdvanceMoments === !0,
+      ...data.defaultCamera === "follow" || data.defaultCamera === "fixed" ? { defaultCamera: data.defaultCamera } : {}
+    };
+  }
+
+  // src/core/route.ts
+  var Route = class {
+    constructor(points) {
+      __publicField(this, "points");
+      /** Cumulative metres from the start, one per point. */
+      __publicField(this, "dist");
+      __publicField(this, "length");
+      this.points = points;
+      let dist = [0];
+      for (let i = 1; i < points.length; i++) dist.push(dist[i - 1] + haversine(points[i - 1], points[i]));
+      this.dist = dist, this.length = dist[dist.length - 1] || 0;
+    }
+    /** Position at fraction f (0..1) of the route's length. */
+    pointAt(f) {
+      let { points, dist } = this;
+      if (f <= 0) return points[0];
+      if (f >= 1) return points[points.length - 1];
+      let d = f * this.length, lo = 1, hi = dist.length - 1;
+      for (; lo < hi; ) {
+        let m = lo + hi >> 1;
+        dist[m] < d ? lo = m + 1 : hi = m;
+      }
+      let i = lo, t = (d - dist[i - 1]) / Math.max(1e-3, dist[i] - dist[i - 1]), a = points[i - 1], b = points[i];
+      return { lat: a.lat + (b.lat - a.lat) * t, lon: a.lon + (b.lon - a.lon) * t };
+    }
+    /** Index of the last point at or before fraction f; the drawn "done" line runs through it. */
+    indexAt(f) {
+      let idx = 0;
+      for (; idx < this.dist.length - 1 && this.dist[idx + 1] <= f * this.length; ) idx++;
+      return idx;
+    }
+  };
+
+  // src/core/pacing.ts
+  var ROUTE_SECONDS = 90, EASE_IN_SPAN = 0.018, EASE_OUT_SPAN = 0.022, MIN_PACE = 0.34, PACE_RANGE = 0.66, MAX_FRAME_MS = 80, FOLLOW_SMOOTHING = 0.17, AUTO_CONTINUE_MS = 1e4, AT_EPSILON = 1e-8, smooth = (x) => x * x * (3 - 2 * x);
+  function step(i) {
+    let dt = Math.min(MAX_FRAME_MS, i.dtMs), old = i.position, easeIn = clamp((old - i.resumedAt) / EASE_IN_SPAN, 0, 1), nextMoment = i.moments.filter((s) => !i.visited.has(s.id) && s.at > old).sort((a, b) => a.at - b.at)[0], remaining = nextMoment ? nextMoment.at - old : 1 - old, easeOut = clamp(remaining / EASE_OUT_SPAN, 0, 1), pace = MIN_PACE + PACE_RANGE * Math.min(smooth(easeIn), smooth(easeOut)), next = clamp(old + dt / 1e3 / (ROUTE_SECONDS / i.speed) * pace, 0, 1), upcoming = i.moments.filter((s) => !i.visited.has(s.id) && s.at > old + AT_EPSILON && s.at <= next + AT_EPSILON).sort((a, b) => a.at - b.at)[0];
+    return upcoming ? { kind: "moment", position: upcoming.at, moment: upcoming } : next >= 1 ? { kind: "end", position: 1 } : { kind: "move", position: next };
+  }
+
+  // src/map/camera.ts
+  var MIN_ZOOM = 2, MAX_ZOOM = 18, MAX_FIT_ZOOM = 17, Camera = class {
+    constructor(size) {
+      __publicField(this, "size", size);
+      __publicField(this, "mode", "fixed");
+      __publicField(this, "zoom", 12);
+      __publicField(this, "center", { lat: 37.9, lon: -122.55 });
+      __publicField(this, "fitZoom", 12);
+      __publicField(this, "fitCenter", { lat: 37.9, lon: -122.55 });
+    }
+    /** Screen position of a point, relative to the map element. */
+    project(p) {
+      let { w, h } = this.size(), a = world(p.lat, p.lon, this.zoom), c = world(this.center.lat, this.center.lon, this.zoom);
+      return { x: a.x - c.x + w / 2, y: a.y - c.y + h / 2 };
+    }
+    /** The zoom and centre at which the whole route fits with a 75 px margin. */
+    calcFit(route) {
+      let { w, h } = this.size(), width = Math.max(100, w - 150), height = Math.max(100, h - 150), z = MAX_FIT_ZOOM, minx = 0, maxx = 0, miny = 0, maxy = 0;
+      for (; z >= 2; z--) {
+        minx = miny = 1 / 0, maxx = maxy = -1 / 0;
+        for (let p of route.points) {
+          let v = world(p.lat, p.lon, z);
+          v.x < minx && (minx = v.x), v.x > maxx && (maxx = v.x), v.y < miny && (miny = v.y), v.y > maxy && (maxy = v.y);
+        }
+        if (maxx - minx <= width && maxy - miny <= height) break;
+      }
+      this.fitZoom = Math.max(2, z), this.fitCenter = coords((minx + maxx) / 2, (miny + maxy) / 2, this.fitZoom);
+    }
+    /** V12's fit(): overview in fixed mode, a closer view of the playhead in follow mode. */
+    fit(route, position) {
+      this.calcFit(route), this.zoom = this.mode === "follow" ? clamp(this.fitZoom + 2, MIN_ZOOM, MAX_FIT_ZOOM) : this.fitZoom, this.center = this.mode === "follow" ? route.pointAt(position) : { ...this.fitCenter };
+    }
+    /** Ease the centre toward the playhead. V12 does this on every render while playing in follow mode. */
+    follow(route, position) {
+      let target = route.pointAt(position);
+      this.center = { lat: this.center.lat + (target.lat - this.center.lat) * FOLLOW_SMOOTHING, lon: this.center.lon + (target.lon - this.center.lon) * FOLLOW_SMOOTHING };
+    }
+    zoomBy(delta) {
+      this.zoom = clamp(this.zoom + delta, MIN_ZOOM, MAX_ZOOM);
+    }
+    /** Pan by a screen-pixel offset from a starting centre (dragging the map). */
+    panFrom(start, dx, dy) {
+      let c = world(start.lat, start.lon, this.zoom);
+      this.center = coords(c.x - dx, c.y - dy, this.zoom);
+    }
+  };
+
+  // src/map/tiles.ts
+  var USGS = {
+    id: "usgs",
+    name: "USGS The National Map",
+    creditUrl: "https://www.usgs.gov/the-national-map-data-delivery",
+    tile: (z, x, y) => \`https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/\${z}/\${y}/\${x}\`
+  };
+  var TILE_SOURCES = [USGS], NATIVE_MAX_ZOOM = 16, TileLayer = class {
+    constructor(root, ui, sources = TILE_SOURCES) {
+      __publicField(this, "root", root);
+      __publicField(this, "ui", ui);
+      __publicField(this, "sources", sources);
+      __publicField(this, "active", /* @__PURE__ */ new Map());
+      __publicField(this, "generation", 0);
+      __publicField(this, "loaded", 0);
+      __publicField(this, "failures", 0);
+    }
+    /** Drop every tile and start over (used by "Retry map"). */
+    reset() {
+      this.generation++;
+      for (let item of this.active.values())
+        item.image.onload = null, item.image.onerror = null, item.image.remove();
+      this.active.clear(), this.loaded = 0, this.failures = 0, this.ui.showStatus("Loading topographic map\\u2026");
+    }
+    draw(center, z, w, h) {
+      if (!w || !h) return;
+      let tz = Math.min(z, NATIVE_MAX_ZOOM), size = 256 * 2 ** (z - tz), N = 2 ** tz, c = world(center.lat, center.lon, z), x0 = Math.floor((c.x - w / 2) / size) - 1, x1 = Math.floor((c.x + w / 2) / size) + 1, y0 = Math.max(0, Math.floor((c.y - h / 2) / size) - 1), y1 = Math.min(N - 1, Math.floor((c.y + h / 2) / size) + 1), needed = /* @__PURE__ */ new Set();
+      for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+        let xx = (x % N + N) % N, key = tz + "/" + xx + "/" + y + (size === 256 ? "" : "@" + size);
+        needed.add(key);
+        let item = this.active.get(key);
+        item || (item = this.create(key, tz, xx, y), size !== 256 && (item.image.style.width = item.image.style.height = size + "px")), item.image.style.left = Math.round(x * size - c.x + w / 2) + "px", item.image.style.top = Math.round(y * size - c.y + h / 2) + "px";
+      }
+      for (let [key, item] of this.active) needed.has(key) || (item.image.remove(), this.active.delete(key));
+      this.refreshCredit();
+    }
+    create(key, z, x, y) {
+      let im = new Image();
+      im.draggable = !1, im.alt = "";
+      let item = { image: im, provider: 0, loaded: !1 };
+      this.active.set(key, item), this.root.append(im);
+      let generation = this.generation, setSource = (index) => {
+        item.provider = index, im.src = this.sources[index].tile(z, x, y);
+      };
+      return im.onload = () => {
+        !im.isConnected || generation !== this.generation || (item.loaded = !0, this.loaded++, (this.loaded === 1 || item.provider === 1) && this.ui.clearStatus(), this.refreshCredit());
+      }, im.onerror = () => {
+        !im.isConnected || generation !== this.generation || (item.provider + 1 < this.sources.length ? (setSource(item.provider + 1), this.loaded === 0 && this.ui.showStatus("USGS imagery unavailable; trying a backup topographic map\\u2026")) : (im.style.display = "none", this.failures++, this.loaded === 0 && this.failures >= Math.min(3, this.active.size) && this.ui.showStatus(this.sources.length > 1 ? "Map images could not load from either source. Check network access, or retry." : "Map images could not load. Check network access, or retry.", !0)));
+      }, setSource(0), item;
+    }
+    /** Credit Esri if any visible loaded tile is Esri, otherwise USGS. Unchanged while nothing has loaded. */
+    refreshCredit() {
+      let any = !1, esri = !1;
+      for (let item of this.active.values()) item.loaded && (any = !0, item.provider === 1 && (esri = !0));
+      any && this.ui.setCredit(this.sources[esri ? 1 : 0]);
+    }
+  };
+
+  // src/map/routeCanvas.ts
+  function drawRoute(canvas, ctx, camera, route, position, momentsAt, w, h) {
+    let dpr = Math.min(devicePixelRatio || 1, 2);
+    if ((canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) && (canvas.width = Math.round(w * dpr), canvas.height = Math.round(h * dpr)), ctx.setTransform(dpr, 0, 0, dpr, 0, 0), ctx.clearRect(0, 0, w, h), route.points.length < 2) return;
+    let points = route.points.map((p) => camera.project(p)), line = (arr, color, weight) => {
+      ctx.beginPath(), arr.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)), ctx.strokeStyle = color, ctx.lineWidth = weight, ctx.lineCap = "round", ctx.lineJoin = "round", ctx.stroke();
+    };
+    line(points, "#ffffffcc", 10), line(points, "#386d5ec2", 6);
+    let head = camera.project(route.pointAt(position)), done = points.slice(0, route.indexAt(position) + 1);
+    done.push(head), line(done, "#132f27d9", 8), line(done, "#ea8856", 5), [...momentsAt].sort((a, b) => a - b).forEach((at, i) => {
+      let p = camera.project(route.pointAt(at));
+      ctx.beginPath(), ctx.arc(p.x, p.y, 14, 0, Math.PI * 2), ctx.fillStyle = "#fffdf6", ctx.fill(), ctx.lineWidth = 2.5, ctx.strokeStyle = "#294f3d", ctx.stroke(), ctx.fillStyle = "#294f3d", ctx.textAlign = "center", ctx.textBaseline = "middle", ctx.font = "bold 12px system-ui", ctx.fillText(String(i + 1), p.x, p.y + 0.5);
+    }), ctx.beginPath(), ctx.arc(head.x, head.y, 10, 0, Math.PI * 2), ctx.fillStyle = "#ffffff", ctx.fill(), ctx.beginPath(), ctx.arc(head.x, head.y, 6.2, 0, Math.PI * 2), ctx.fillStyle = "#e46e41", ctx.fill();
+  }
+
+  // src/viewer/viewer.ts
+  var $ = (id) => {
+    let el = document.getElementById(id);
+    if (!el) throw new Error("Missing element #" + id);
+    return el;
+  }, Viewer = class {
+    constructor() {
+      __publicField(this, "story");
+      __publicField(this, "route");
+      __publicField(this, "position", 0);
+      __publicField(this, "playing", !1);
+      __publicField(this, "raf", 0);
+      __publicField(this, "prevT", 0);
+      __publicField(this, "speed", 1);
+      __publicField(this, "resumedAt", 0);
+      __publicField(this, "visited", /* @__PURE__ */ new Set());
+      __publicField(this, "overlay", null);
+      __publicField(this, "activeMoment", null);
+      __publicField(this, "photoIndex", 0);
+      __publicField(this, "autoAdvance", !1);
+      __publicField(this, "pointer", null);
+      __publicField(this, "auto", { timeout: 0, interval: 0, start: 0 });
+      __publicField(this, "statusLast", "");
+      __publicField(this, "creditId", "usgs");
+      __publicField(this, "toastTimer", 0);
+      __publicField(this, "map", $("mapArea"));
+      __publicField(this, "canvas", $("routeCanvas"));
+      __publicField(this, "ctx", this.canvas.getContext("2d"));
+      __publicField(this, "camera", new Camera(() => ({ w: this.map.clientWidth, h: this.map.clientHeight })));
+      __publicField(this, "tiles", new TileLayer($("tileLayer"), {
+        showStatus: (m, retry = !1) => this.showMapStatus(m, retry),
+        clearStatus: () => this.clearMapStatus(),
+        setCredit: (s) => this.setCredit(s)
+      }));
+      this.bind();
+    }
+    /** Switch between the follow and fixed cameras and keep the toggle button in step. */
+    setCameraMode(mode) {
+      this.camera.mode = mode, $("followToggle").setAttribute("aria-pressed", String(mode === "follow"));
+    }
+    // ---- loading ----
+    /** Show a story: route, text and moments. Call \`begin()\` to open the welcome card. */
+    load(story) {
+      this.pause(), this.hideOverlay(), this.story = story, this.route = new Route(story.track), this.position = 0, this.visited.clear(), this.autoAdvance = story.autoAdvanceMoments, this.setCameraMode(story.defaultCamera ?? "follow"), $("emptyState").hidden = !0;
+      for (let id of ["playBtn", "resetBtn", "progressRange"]) $(id).disabled = !1;
+      $("mapTitle").textContent = story.title, $("mapKicker").textContent = story.demo ? "SAMPLE GPX ROUTE" : "A PRUYN PATHS FIELD REPORT", document.title = story.title + " \\u2014 Pruyn Paths", this.renderMomentIndex(), this.camera.fit(this.route, 0), this.render();
+    }
+    /** V12 shows the welcome card 150 ms after load. */
+    begin() {
+      setTimeout(() => this.showOverlay("welcome"), 150);
+    }
+    showEmpty() {
+      $("emptyState").hidden = !1;
+    }
+    toast(msg) {
+      let t = $("toast");
+      t.textContent = msg, t.hidden = !1, clearTimeout(this.toastTimer), this.toastTimer = window.setTimeout(() => {
+        t.hidden = !0;
+      }, 3700);
+    }
+    // ---- map status and credit ----
+    showMapStatus(message, retry = !1) {
+      message === this.statusLast && !$("mapStatus").hidden || (this.statusLast = message, $("mapStatusText").textContent = message, $("mapStatus").hidden = !1, $("retryMap").hidden = !retry);
+    }
+    clearMapStatus() {
+      this.statusLast = "", $("mapStatus").hidden = !0, $("retryMap").hidden = !0;
+    }
+    setCredit(source) {
+      if (source.id === this.creditId) return;
+      this.creditId = source.id;
+      let a = document.createElement("a");
+      a.href = source.creditUrl, a.target = "_blank", a.rel = "noopener", a.textContent = "Map: " + source.name, $("mapAttribution").replaceChildren(a);
+    }
+    // ---- drawing ----
+    render() {
+      if (!this.story) return;
+      this.camera.mode === "follow" && this.playing && this.camera.follow(this.route, this.position);
+      let w = this.map.clientWidth, h = this.map.clientHeight;
+      this.tiles.draw(this.camera.center, this.camera.zoom, w, h), drawRoute(this.canvas, this.ctx, this.camera, this.route, this.position, this.story.moments.map((m) => m.at), w, h), $("progressRange").value = String(Math.round(this.position * 1e3)), $("percentLabel").textContent = Math.round(this.position * 100) + "%", $("distanceProgress").textContent = formatMiles(this.position * this.route.length) + " explored", $("playBtn").textContent = this.playing ? "\\u2161" : "\\u25B6", $("playBtn").setAttribute("aria-label", this.playing ? "Pause" : "Play");
+    }
+    onResize() {
+      this.story && this.camera.mode === "fixed" && this.position === 0 && (this.camera.calcFit(this.route), this.camera.zoom = this.camera.fitZoom, this.camera.center = { ...this.camera.fitCenter }), this.render();
+    }
+    // ---- playback ----
+    pause() {
+      this.playing = !1, this.prevT = 0, cancelAnimationFrame(this.raf), $("playBtn").textContent = "\\u25B6";
+    }
+    play() {
+      this.story && (this.overlay && this.hideOverlay(), this.position >= 1 && (this.position = 0, this.visited.clear()), this.resumedAt = this.position, this.playing = !0, this.prevT = 0, this.raf = requestAnimationFrame((t) => this.tick(t)), this.render());
+    }
+    tick(t) {
+      if (!this.playing) return;
+      this.prevT || (this.prevT = t);
+      let dtMs = t - this.prevT;
+      this.prevT = t;
+      let r = step({ position: this.position, resumedAt: this.resumedAt, speed: this.speed, moments: this.story.moments, visited: this.visited, dtMs });
+      if (r.kind === "moment") {
+        this.position = r.position, this.visited.add(r.moment.id), this.pause(), this.render(), this.showOverlay("stop", r.moment);
+        return;
+      }
+      if (this.position = r.position, this.render(), r.kind === "end") {
+        this.pause(), this.showOverlay("end");
+        return;
+      }
+      this.raf = requestAnimationFrame((t2) => this.tick(t2));
+    }
+    // ---- auto-continue at a moment ----
+    stopAuto() {
+      clearTimeout(this.auto.timeout), clearInterval(this.auto.interval), this.auto.timeout = 0, this.auto.interval = 0, $("autoCountdown").hidden = !0;
+    }
+    stayAtMoment() {
+      this.overlay === "stop" && this.stopAuto();
+    }
+    startAuto() {
+      if (this.stopAuto(), this.overlay !== "stop" || !this.autoAdvance) return;
+      let ms = AUTO_CONTINUE_MS;
+      this.auto.start = Date.now(), $("autoCountdown").hidden = !1;
+      let update = () => {
+        if (this.overlay !== "stop") {
+          this.stopAuto();
+          return;
+        }
+        let elapsed = Math.min(ms, Date.now() - this.auto.start);
+        $("autoCountdownText").textContent = "Continuing in " + Math.max(1, Math.ceil((ms - elapsed) / 1e3)) + "s";
+        let photos = this.activeMoment?.photos ?? [];
+        if (photos.length > 1) {
+          let index = Math.min(photos.length - 1, Math.floor(elapsed / ms * photos.length));
+          index !== this.photoIndex && (this.photoIndex = index, this.showPhoto());
+        }
+      };
+      update(), this.auto.interval = window.setInterval(update, 160), this.auto.timeout = window.setTimeout(() => {
+        this.overlay === "stop" && (this.stopAuto(), this.continueOverlay());
+      }, ms);
+    }
+    // ---- story cards ----
+    photosForOverlay() {
+      return this.overlay === "welcome" ? this.story.openingPhotos : this.overlay === "end" ? this.story.endingPhotos : this.activeMoment?.photos ?? [];
+    }
+    showPhoto() {
+      let photos = this.photosForOverlay(), have = photos.length > 0, img = $("overlayPhoto");
+      img.hidden = !have, $("photoNav").hidden = photos.length < 2, have ? (this.photoIndex = clamp(this.photoIndex, 0, photos.length - 1), img.src = photos[this.photoIndex], $("photoCount").textContent = this.photoIndex + 1 + " of " + photos.length, $("photoPrev").disabled = this.photoIndex === 0, $("photoNext").disabled = this.photoIndex === photos.length - 1) : img.removeAttribute("src");
+    }
+    showOverlay(kind, moment) {
+      this.stopAuto(), this.overlay = kind, this.activeMoment = kind === "stop" ? moment ?? null : null, this.photoIndex = 0;
+      let s = this.story, stop = this.activeMoment;
+      $("overlayCard").classList.toggle("welcome", kind !== "stop"), $("overlayKicker").textContent = kind === "stop" ? "MOMENT \\xB7 " + Math.round(stop.at * 100) + "% ALONG THE WAY" : kind === "end" ? "THE END OF THE TRAIL" : "A PRUYN PATHS ADVENTURE", $("overlayTitle").textContent = kind === "stop" ? stop.title || "Along the way" : kind === "end" ? s.endingTitle : s.openingTitle || s.title, $("overlayText").textContent = kind === "stop" ? stop.caption || "A moment worth stopping for." : kind === "end" ? s.endingMessage : s.intro || "A little journey, best enjoyed at your own pace.", this.showPhoto(), $("overlayContinue").textContent = kind === "stop" ? "Continue the journey \\u2192" : kind === "end" ? "Explore it again \\u21BA" : "Begin the journey \\u2192", $("storyOverlay").hidden = !1, this.startAuto();
+    }
+    hideOverlay() {
+      this.stopAuto(), this.overlay = null, $("storyOverlay").hidden = !0;
+    }
+    continueOverlay() {
+      let kind = this.overlay;
+      this.hideOverlay(), kind === "end" && (this.position = 0, this.visited.clear()), this.play();
+    }
+    // ---- Moments list ----
+    closeDrawer() {
+      $("momentsDrawer").hidden = !0, $("momentsBtn").setAttribute("aria-expanded", "false");
+    }
+    renderMomentIndex() {
+      let list = $("momentsList");
+      list.replaceChildren();
+      let ordered = this.story.moments.slice().sort((a, b) => a.at - b.at);
+      if ($("momentsBadge").textContent = String(ordered.length), $("momentsBtn").disabled = !1, !ordered.length) {
+        let p = document.createElement("p");
+        p.className = "moments-empty", p.textContent = "No moments yet. The adventure still plays from start to finish.", list.append(p);
+        return;
+      }
+      ordered.forEach((m, i) => {
+        let btn = document.createElement("button");
+        btn.type = "button", btn.className = "moment-jump", btn.setAttribute("aria-label", "Jump to moment " + (i + 1) + ": " + m.title);
+        let circle = document.createElement("span");
+        circle.className = "jump-number", circle.textContent = String(i + 1);
+        let body = document.createElement("span");
+        body.className = "jump-text";
+        let title = document.createElement("strong");
+        title.textContent = m.title || "Along the way";
+        let caption = document.createElement("small");
+        caption.textContent = formatMiles(m.at * this.route.length) + " along the trail \\xB7 " + m.photos.length + " photo" + (m.photos.length === 1 ? "" : "s"), body.append(title, caption), btn.append(circle, body);
+        let photo = m.photos[0];
+        if (photo) {
+          let img = document.createElement("img");
+          img.src = photo, img.alt = "", btn.append(img);
+        }
+        let arrow = document.createElement("span");
+        arrow.className = "jump-arrow", arrow.textContent = "\\u203A", btn.append(arrow), btn.addEventListener("click", () => {
+          this.pause(), this.hideOverlay(), this.position = m.at, this.visited = new Set(this.story.moments.filter((x) => x.at <= m.at + AT_EPSILON).map((x) => x.id)), this.camera.mode === "follow" && (this.camera.center = this.route.pointAt(m.at)), this.closeDrawer(), this.render(), this.showOverlay("stop", m);
+        }), list.append(btn);
+      });
+    }
+    // ---- events ----
+    bind() {
+      let map = this.map;
+      $("momentsBtn").addEventListener("click", () => {
+        let drawer = $("momentsDrawer");
+        drawer.hidden = !drawer.hidden, $("momentsBtn").setAttribute("aria-expanded", String(!drawer.hidden)), drawer.hidden || this.renderMomentIndex();
+      }), $("closeMoments").addEventListener("click", () => this.closeDrawer()), $("playBtn").addEventListener("click", () => this.playing ? this.pause() : this.play()), $("resetBtn").addEventListener("click", () => {
+        this.pause(), this.hideOverlay(), this.position = 0, this.visited.clear(), this.camera.mode === "follow" && (this.camera.center = this.route.pointAt(0)), this.render();
+      }), $("progressRange").addEventListener("input", (e) => {
+        this.pause(), this.hideOverlay(), this.position = +e.target.value / 1e3, this.visited = new Set(this.story.moments.filter((s) => s.at <= this.position).map((s) => s.id)), this.camera.mode === "follow" && (this.camera.center = this.route.pointAt(this.position)), this.render();
+      }), $("speedSelect").addEventListener("change", (e) => {
+        this.speed = +e.target.value;
+      }), $("zoomIn").addEventListener("click", () => {
+        this.camera.zoomBy(1), this.render();
+      }), $("zoomOut").addEventListener("click", () => {
+        this.camera.zoomBy(-1), this.render();
+      }), $("fitBtn").addEventListener("click", () => {
+        this.setCameraMode("fixed"), this.camera.fit(this.route, this.position), this.render();
+      }), $("followToggle").addEventListener("click", () => {
+        this.story && (this.setCameraMode(this.camera.mode === "follow" ? "fixed" : "follow"), this.camera.fit(this.route, this.position), this.render());
+      }), $("overlayContinue").addEventListener("click", () => this.continueOverlay()), $("autoStayBtn").addEventListener("click", () => this.stayAtMoment()), $("photoPrev").addEventListener("click", () => {
+        this.stayAtMoment(), this.photoIndex--, this.showPhoto();
+      }), $("photoNext").addEventListener("click", () => {
+        this.stayAtMoment(), this.photoIndex++, this.showPhoto();
+      }), $("retryMap").addEventListener("click", () => {
+        this.tiles.reset(), this.tiles.draw(this.camera.center, this.camera.zoom, this.map.clientWidth, this.map.clientHeight);
+      }), map.addEventListener("pointerdown", (e) => {
+        e.target.closest("button,a") || !this.story || this.overlay || e.pointerType === "mouse" && e.button !== 0 || (this.pointer = { x: e.clientX, y: e.clientY, center: { ...this.camera.center }, moved: !1 }, map.setPointerCapture(e.pointerId));
+      }), map.addEventListener("pointermove", (e) => {
+        let p = this.pointer;
+        if (!p) return;
+        let dx = e.clientX - p.x, dy = e.clientY - p.y;
+        Math.hypot(dx, dy) > 5 && (p.moved = !0), p.moved && (map.classList.add("dragging"), this.pause(), this.camera.panFrom(p.center, dx, dy), this.render());
+      }), map.addEventListener("pointerup", () => {
+        let p = this.pointer;
+        p && (this.pointer = null, map.classList.remove("dragging", "moving"), p.moved && this.camera.mode === "follow" && this.setCameraMode("fixed"));
+      }), map.addEventListener("pointercancel", () => {
+        this.pointer = null, map.classList.remove("dragging", "moving"), this.render();
+      }), map.addEventListener("wheel", (e) => {
+        !this.story || this.overlay || (e.preventDefault(), this.camera.zoomBy(e.deltaY < 0 ? 1 : -1), this.render());
+      }, { passive: !1 }), document.addEventListener("visibilitychange", () => {
+        document.hidden && this.stayAtMoment();
+      }), document.addEventListener("keydown", (e) => {
+        e.code === "Space" && !["INPUT", "TEXTAREA", "BUTTON", "SELECT"].includes(document.activeElement?.tagName ?? "") && (e.preventDefault(), this.overlay ? this.continueOverlay() : this.playing ? this.pause() : this.play());
+      }), new ResizeObserver(() => this.onResize()).observe(map);
+    }
+  };
+
+  // src/viewer/main.ts
+  var viewer = new Viewer(), embedded = document.getElementById("adventure-data");
+  if (embedded)
+    try {
+      viewer.load(parseStory(JSON.parse(embedded.textContent ?? ""))), viewer.begin();
+    } catch (e) {
+      viewer.showEmpty(), viewer.toast("This story could not be opened: " + (e instanceof Error ? e.message : String(e)));
+    }
+  else viewer.showEmpty();
+})();
+` };
+
+  // src/core/geo.ts
+  var clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  function world(lat, lon, z) {
+    let size = 256 * 2 ** z, sin = Math.sin(clamp(lat, -85.0511, 85.0511) * Math.PI / 180);
+    return { x: (lon + 180) / 360 * size, y: (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * size };
+  }
+  function coords(x, y, z) {
+    let size = 256 * 2 ** z, lon = x / size * 360 - 180, v = Math.PI * (1 - 2 * y / size);
+    return { lat: Math.atan(Math.sinh(v)) * 180 / Math.PI, lon };
+  }
+  function haversine(a, b) {
+    let t = Math.PI / 180, dlat = (b.lat - a.lat) * t, dlon = (b.lon - a.lon) * t, v = Math.sin(dlat / 2) ** 2 + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dlon / 2) ** 2;
+    return 2 * 6371e3 * Math.asin(Math.sqrt(clamp(v, 0, 1)));
+  }
+  var formatMiles = (metres) => (metres / 1609.344).toFixed(1) + " mi";
+
+  // src/core/route.ts
+  var Route = class {
+    constructor(points) {
+      __publicField(this, "points");
+      /** Cumulative metres from the start, one per point. */
+      __publicField(this, "dist");
+      __publicField(this, "length");
+      this.points = points;
+      let dist = [0];
+      for (let i = 1; i < points.length; i++) dist.push(dist[i - 1] + haversine(points[i - 1], points[i]));
+      this.dist = dist, this.length = dist[dist.length - 1] || 0;
+    }
+    /** Position at fraction f (0..1) of the route's length. */
+    pointAt(f) {
+      let { points, dist } = this;
+      if (f <= 0) return points[0];
+      if (f >= 1) return points[points.length - 1];
+      let d = f * this.length, lo = 1, hi = dist.length - 1;
+      for (; lo < hi; ) {
+        let m = lo + hi >> 1;
+        dist[m] < d ? lo = m + 1 : hi = m;
+      }
+      let i = lo, t = (d - dist[i - 1]) / Math.max(1e-3, dist[i] - dist[i - 1]), a = points[i - 1], b = points[i];
+      return { lat: a.lat + (b.lat - a.lat) * t, lon: a.lon + (b.lon - a.lon) * t };
+    }
+    /** Index of the last point at or before fraction f; the drawn "done" line runs through it. */
+    indexAt(f) {
+      let idx = 0;
+      for (; idx < this.dist.length - 1 && this.dist[idx + 1] <= f * this.length; ) idx++;
+      return idx;
+    }
+  };
+
+  // src/core/photos.ts
+  var PHOTO_LIMITS = {
+    /** A geotagged photo is placed only if it was taken this close to the route. */
+    matchMetres: 250,
+    /** A placed photo joins an existing moment this close along the trail, instead of starting a new one. */
+    groupMetres: 65,
+    /** At most this many photos per batch. */
+    batch: 100,
+    /** Moments stay this far from the very start and end of the route (fraction of its length). */
+    edge: 2e-3
+  };
+  function jpegGPS(buffer) {
+    try {
+      let d = new DataView(buffer);
+      if (d.byteLength < 16 || d.getUint16(0) !== 65496) return null;
+      let pos = 2;
+      for (; pos + 4 < d.byteLength && d.getUint8(pos) === 255; ) {
+        let marker = d.getUint8(pos + 1), length = d.getUint16(pos + 2, !1);
+        if (length < 2 || pos + 2 + length > d.byteLength) break;
+        if (marker === 225 && length >= 14 && d.getUint32(pos + 4) === 1165519206 && d.getUint16(pos + 8) === 0) {
+          let t = pos + 10, le = d.getUint16(t) === 18761;
+          if (!le && d.getUint16(t) !== 19789) return null;
+          let u16 = (o) => d.getUint16(o, le), u32 = (o) => d.getUint32(o, le);
+          if (u16(t + 2) !== 42) return null;
+          let end = pos + 2 + length, valid = (o, n = 1) => o >= t && o + n <= end && o + n <= d.byteLength, readIFD = (off) => {
+            let at = t + off;
+            if (!valid(at, 2)) return {};
+            let count = Math.min(128, u16(at)), entries = {};
+            for (let i = 0; i < count; i++) {
+              let e = at + 2 + i * 12;
+              if (!valid(e, 12)) break;
+              entries[u16(e)] = { type: u16(e + 2), count: u32(e + 4), offset: e + 8 };
+            }
+            return entries;
+          }, gpsPointer = readIFD(u32(t + 4))[34853];
+          if (!gpsPointer || gpsPointer.type !== 4) return null;
+          let gps = readIFD(u32(gpsPointer.offset)), ascii = (entry) => {
+            if (!entry) return null;
+            let p = entry.count <= 4 ? entry.offset : t + u32(entry.offset);
+            return valid(p) ? String.fromCharCode(d.getUint8(p)).toUpperCase() : null;
+          }, degrees = (entry) => {
+            if (!entry || entry.type !== 5 || entry.count !== 3) return null;
+            let p = t + u32(entry.offset);
+            if (!valid(p, 24)) return null;
+            let n = [];
+            for (let i = 0; i < 3; i++) {
+              let num = u32(p + i * 8), den = u32(p + i * 8 + 4);
+              if (!den) return null;
+              n.push(num / den);
+            }
+            return n[0] + n[1] / 60 + n[2] / 3600;
+          }, lat = degrees(gps[2]), lon = degrees(gps[4]);
+          if (lat === null || lon === null || !Number.isFinite(lat) || !Number.isFinite(lon) || lat > 90 || lon > 180) return null;
+          let ns = ascii(gps[1]), ew = ascii(gps[3]);
+          return ns !== "N" && ns !== "S" || ew !== "E" && ew !== "W" ? null : { lat: ns === "S" ? -lat : lat, lon: ew === "W" ? -lon : lon };
+        }
+        pos += length + 2;
+      }
+    } catch {
+    }
+    return null;
+  }
+  function nearestOnRoute(route, gps) {
+    let pts = route.points;
+    if (pts.length < 2) return null;
+    let mlat = 111195, mlon = mlat * Math.cos(gps.lat * Math.PI / 180), best = { distance: 1 / 0, at: 0 };
+    for (let i = 1; i < pts.length; i++) {
+      let a = pts[i - 1], b = pts[i], ax = (a.lon - gps.lon) * mlon, ay = (a.lat - gps.lat) * mlat, bx = (b.lon - gps.lon) * mlon, by = (b.lat - gps.lat) * mlat, vx = bx - ax, vy = by - ay, t = clamp(-(ax * vx + ay * vy) / (vx * vx + vy * vy || 1), 0, 1), distance = Math.hypot(ax + t * vx, ay + t * vy);
+      distance < best.distance && (best = { distance, at: (route.dist[i - 1] + t * (route.dist[i] - route.dist[i - 1])) / Math.max(1, route.length) });
+    }
+    return best;
+  }
+  var clampMomentAt = (at) => clamp(at, PHOTO_LIMITS.edge, 1 - PHOTO_LIMITS.edge);
+  function addPlacedPhoto(moments, route, at, photo, newId) {
+    let m = moments.find((s) => Math.abs(s.at - at) * route.length <= PHOTO_LIMITS.groupMetres);
+    return m || (m = { id: newId(), at: clampMomentAt(at), title: "Photos along the way", caption: "", photos: [] }, moments.push(m)), m.photos.push(photo), m;
+  }
+
+  // src/core/story.ts
+  var KNOWN_FORMATS = ["pruyn-paths-project-v1", "amanda-goes-project-v1"], DEFAULT_ENDING_TITLE = "And that\u2019s a wrap.", DEFAULT_ENDING_MESSAGE = "Every good adventure deserves a good story. Thanks for coming along.", LIMITS = { minPoints: 2, maxPoints: 1e5, maxMoments: 100, title: 100, bookendTitle: 110, text: 1400 }, StoryError = class extends Error {
+  }, isObj = (v) => typeof v == "object" && v !== null, oneLine = (s) => s.replace(/[\r\n]/g, ""), multiLine = (s) => s.replace(/\r\n?/g, `
+`), bookendPhotos = (v) => Array.isArray(v) ? v.filter((x) => typeof x == "string" && /^data:image\/(png|jpeg|webp|gif);base64,/.test(x)) : [];
+  function momentFrom(s, freshId) {
+    let photos = Array.isArray(s.photos) ? s.photos.filter((x) => typeof x == "string" && x.startsWith("data:image/")) : typeof s.photo == "string" && s.photo.startsWith("data:image/") ? [s.photo] : [];
+    return { id: String(s.id || freshId()), at: clamp(s.at, 0, 1), title: String(s.title || ""), caption: String(s.caption || ""), photos };
+  }
+  function parseStory(data) {
+    if (!isObj(data)) throw new StoryError("This is not a Pruyn Paths story.");
+    let t = data.track;
+    if (!Array.isArray(t) || t.length < LIMITS.minPoints || t.length > LIMITS.maxPoints || t.some((p) => !isObj(p) || !Number.isFinite(p.lat) || !Number.isFinite(p.lon))) throw new StoryError("Invalid route data.");
+    let track = t.map((p) => ({ lat: p.lat, lon: p.lon })), raw = Array.isArray(data.stops) ? data.stops.filter((s) => isObj(s) && Number.isFinite(s.at)).slice(0, LIMITS.maxMoments) : [], used = new Set(raw.map((s) => String(s.id || "")).filter(Boolean)), n = 0, freshId = () => {
+      let id;
+      do
+        id = "m" + ++n;
+      while (used.has(id));
+      return used.add(id), id;
+    }, moments = raw.map((s) => momentFrom(s, freshId));
+    return {
+      title: oneLine(String(data.title || "An Adventure").slice(0, LIMITS.title)).trim() || "An Adventure",
+      intro: multiLine(String(data.intro || "").slice(0, LIMITS.text)).trim(),
+      openingTitle: oneLine(String(data.openingTitle ?? "").slice(0, LIMITS.bookendTitle)).trim(),
+      endingTitle: oneLine(String(data.endingTitle ?? DEFAULT_ENDING_TITLE).slice(0, LIMITS.bookendTitle)).trim(),
+      endingMessage: multiLine(String(data.endingMessage ?? DEFAULT_ENDING_MESSAGE).slice(0, LIMITS.text)).trim(),
+      openingPhotos: bookendPhotos(data.openingPhotos),
+      endingPhotos: bookendPhotos(data.endingPhotos),
+      track,
+      moments,
+      camera: data.camera === "follow" ? "follow" : "fixed",
+      filename: String(data.filename || "Saved adventure"),
+      sourcePoints: Number(data.sourcePoints) || track.length,
+      demo: !!data.demo,
+      autoAdvanceMoments: data.autoAdvanceMoments === !0,
+      ...data.defaultCamera === "follow" || data.defaultCamera === "fixed" ? { defaultCamera: data.defaultCamera } : {}
+    };
+  }
+  var ADVENTURE_DATA = /\x3Cscript id="adventure-data" type="application\/json">([\s\S]*?)<\/script>/;
+  function parseStoryText(text) {
+    let m = text.match(ADVENTURE_DATA), raw;
+    try {
+      raw = JSON.parse(m ? m[1] : text);
+    } catch {
+      throw new StoryError("This file is not a Pruyn Paths story or draft.");
+    }
+    if (!m && !(isObj(raw) && KNOWN_FORMATS.includes(raw.format))) throw new StoryError("This is not a Pruyn Paths draft.");
+    return parseStory(raw);
+  }
+  var escapeForScript = (json) => json.replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+
+  // src/export/page.ts
+  var esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), NOSCRIPT_NOTE = "This story is an animated map, and it needs a web browser with JavaScript turned on. Open this file in Safari, Chrome, Firefox or Edge to take the journey.";
+  function toProjectJson(story) {
+    return {
+      format: "pruyn-paths-project-v1",
+      version: 1,
+      title: story.title,
+      intro: story.intro,
+      openingTitle: story.openingTitle,
+      endingTitle: story.endingTitle,
+      endingMessage: story.endingMessage,
+      openingPhotos: story.openingPhotos,
+      endingPhotos: story.endingPhotos,
+      track: story.track,
+      stops: story.moments,
+      camera: story.camera,
+      filename: story.filename,
+      sourcePoints: story.sourcePoints,
+      demo: story.demo,
+      autoAdvanceMoments: story.autoAdvanceMoments,
+      ...story.defaultCamera ? { defaultCamera: story.defaultCamera } : {},
+      exported: !0
+    };
+  }
+  function noscriptHtml(story) {
+    let moments = story.moments.slice().sort((a, b) => a.at - b.at).map((m) => `<li><strong>${esc(m.title || "Along the way")}</strong>${m.caption ? `<br>${esc(m.caption)}` : ""}</li>`).join("");
+    return `<noscript><main class="nojs"><h1>${esc(story.openingTitle || story.title)}</h1>` + (story.intro ? `<p>${esc(story.intro)}</p>` : "") + (moments ? `<h2>Along the way</h2><ol>${moments}</ol>` : "") + `<h2>${esc(story.endingTitle)}</h2><p>${esc(story.endingMessage)}</p><p class="nojs-note">${esc(NOSCRIPT_NOTE)}</p></main></noscript>`;
+  }
+  function renderPage(p) {
+    if (/<\/script/i.test(p.script)) throw new Error('The player script contains "<\/script", which would end the page early.');
+    if (/<\/style/i.test(p.css)) throw new Error('The stylesheet contains "\x3C/style", which would end the page early.');
+    let parts = {
+      "/*STYLE*/": p.css,
+      "\x3C!--NOSCRIPT-->": p.story ? noscriptHtml(p.story) : "",
+      "\x3C!--STORY-->": p.story ? `\x3Cscript id="adventure-data" type="application/json">${escapeForScript(JSON.stringify(toProjectJson(p.story)))}<\/script>
+` : "",
+      "/*SCRIPT*/": p.script
+    };
+    return p.template.replace(
+      /<title>[\s\S]*?<\/title>|\/\*STYLE\*\/|\x3C!--NOSCRIPT-->|\x3C!--STORY-->|\/\*SCRIPT\*\//g,
+      (m) => m.startsWith("<title>") ? p.story ? `<title>${esc(p.story.title)} \u2014 Pruyn Paths</title>` : m : parts[m]
+    );
+  }
+
+  // src/editor/files.ts
+  function parseGpx(xml) {
+    let dom = new DOMParser().parseFromString(xml, "application/xml");
+    if (dom.querySelector("parsererror")) throw new Error("That GPX file could not be read.");
+    let nodes = [...dom.getElementsByTagNameNS("*", "trkpt")];
+    if (nodes.length || (nodes = [...dom.getElementsByTagName("trkpt")]), nodes.length || (nodes = [...dom.getElementsByTagNameNS("*", "rtept")]), nodes.length || (nodes = [...dom.getElementsByTagName("rtept")]), nodes.length < 2) throw new Error("This file has no usable GPX track or route points.");
+    let p = nodes.map((el2) => ({ lat: parseFloat(el2.getAttribute("lat") ?? ""), lon: parseFloat(el2.getAttribute("lon") ?? "") })).filter((q) => Number.isFinite(q.lat) && Number.isFinite(q.lon) && Math.abs(q.lat) <= 85 && Math.abs(q.lon) <= 180);
+    if (p.length < 2) throw new Error("Not enough valid GPS coordinates.");
+    if (p.length <= 3500) return { points: p, raw: p.length };
+    let points = [];
+    for (let i = 0; i < 3500; i++) points.push(p[Math.round(i * (p.length - 1) / 3499)]);
+    return { points, raw: p.length };
+  }
+  function loadPhoto(file) {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith("image/")) {
+        reject(new Error("Please choose an image."));
+        return;
+      }
+      let url = URL.createObjectURL(file), im = new Image();
+      im.onload = () => {
+        try {
+          let r = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+          c.width = Math.max(1, Math.round(im.width * r)), c.height = Math.max(1, Math.round(im.height * r)), c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+          let data = c.toDataURL("image/webp", 0.82);
+          data.startsWith("data:image/webp") || (data = c.toDataURL("image/jpeg", 0.82)), URL.revokeObjectURL(url), resolve(data);
+        } catch (e) {
+          URL.revokeObjectURL(url), reject(e);
+        }
+      }, im.onerror = () => {
+        URL.revokeObjectURL(url), reject(new Error("Unsupported image."));
+      }, im.src = url;
+    });
+  }
+
+  // src/core/pacing.ts
+  var FOLLOW_SMOOTHING = 0.17;
+
+  // src/map/camera.ts
+  var MIN_ZOOM = 2, MAX_ZOOM = 18, MAX_FIT_ZOOM = 17, Camera = class {
+    constructor(size) {
+      __publicField(this, "size", size);
+      __publicField(this, "mode", "fixed");
+      __publicField(this, "zoom", 12);
+      __publicField(this, "center", { lat: 37.9, lon: -122.55 });
+      __publicField(this, "fitZoom", 12);
+      __publicField(this, "fitCenter", { lat: 37.9, lon: -122.55 });
+    }
+    /** Screen position of a point, relative to the map element. */
+    project(p) {
+      let { w, h } = this.size(), a = world(p.lat, p.lon, this.zoom), c = world(this.center.lat, this.center.lon, this.zoom);
+      return { x: a.x - c.x + w / 2, y: a.y - c.y + h / 2 };
+    }
+    /** The zoom and centre at which the whole route fits with a 75 px margin. */
+    calcFit(route) {
+      let { w, h } = this.size(), width = Math.max(100, w - 150), height = Math.max(100, h - 150), z = MAX_FIT_ZOOM, minx = 0, maxx = 0, miny = 0, maxy = 0;
+      for (; z >= 2; z--) {
+        minx = miny = 1 / 0, maxx = maxy = -1 / 0;
+        for (let p of route.points) {
+          let v = world(p.lat, p.lon, z);
+          v.x < minx && (minx = v.x), v.x > maxx && (maxx = v.x), v.y < miny && (miny = v.y), v.y > maxy && (maxy = v.y);
+        }
+        if (maxx - minx <= width && maxy - miny <= height) break;
+      }
+      this.fitZoom = Math.max(2, z), this.fitCenter = coords((minx + maxx) / 2, (miny + maxy) / 2, this.fitZoom);
+    }
+    /** V12's fit(): overview in fixed mode, a closer view of the playhead in follow mode. */
+    fit(route, position) {
+      this.calcFit(route), this.zoom = this.mode === "follow" ? clamp(this.fitZoom + 2, MIN_ZOOM, MAX_FIT_ZOOM) : this.fitZoom, this.center = this.mode === "follow" ? route.pointAt(position) : { ...this.fitCenter };
+    }
+    /** Ease the centre toward the playhead. V12 does this on every render while playing in follow mode. */
+    follow(route, position) {
+      let target = route.pointAt(position);
+      this.center = { lat: this.center.lat + (target.lat - this.center.lat) * FOLLOW_SMOOTHING, lon: this.center.lon + (target.lon - this.center.lon) * FOLLOW_SMOOTHING };
+    }
+    zoomBy(delta) {
+      this.zoom = clamp(this.zoom + delta, MIN_ZOOM, MAX_ZOOM);
+    }
+    /** Pan by a screen-pixel offset from a starting centre (dragging the map). */
+    panFrom(start, dx, dy) {
+      let c = world(start.lat, start.lon, this.zoom);
+      this.center = coords(c.x - dx, c.y - dy, this.zoom);
+    }
+  };
+
+  // src/map/tiles.ts
+  var USGS = {
+    id: "usgs",
+    name: "USGS The National Map",
+    creditUrl: "https://www.usgs.gov/the-national-map-data-delivery",
+    tile: (z, x, y) => `https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/${z}/${y}/${x}`
+  };
+  var TILE_SOURCES = [USGS], NATIVE_MAX_ZOOM = 16, TileLayer = class {
+    constructor(root, ui, sources = TILE_SOURCES) {
+      __publicField(this, "root", root);
+      __publicField(this, "ui", ui);
+      __publicField(this, "sources", sources);
+      __publicField(this, "active", /* @__PURE__ */ new Map());
+      __publicField(this, "generation", 0);
+      __publicField(this, "loaded", 0);
+      __publicField(this, "failures", 0);
+    }
+    /** Drop every tile and start over (used by "Retry map"). */
+    reset() {
+      this.generation++;
+      for (let item of this.active.values())
+        item.image.onload = null, item.image.onerror = null, item.image.remove();
+      this.active.clear(), this.loaded = 0, this.failures = 0, this.ui.showStatus("Loading topographic map\u2026");
+    }
+    draw(center, z, w, h) {
+      if (!w || !h) return;
+      let tz = Math.min(z, NATIVE_MAX_ZOOM), size = 256 * 2 ** (z - tz), N = 2 ** tz, c = world(center.lat, center.lon, z), x0 = Math.floor((c.x - w / 2) / size) - 1, x1 = Math.floor((c.x + w / 2) / size) + 1, y0 = Math.max(0, Math.floor((c.y - h / 2) / size) - 1), y1 = Math.min(N - 1, Math.floor((c.y + h / 2) / size) + 1), needed = /* @__PURE__ */ new Set();
+      for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+        let xx = (x % N + N) % N, key = tz + "/" + xx + "/" + y + (size === 256 ? "" : "@" + size);
+        needed.add(key);
+        let item = this.active.get(key);
+        item || (item = this.create(key, tz, xx, y), size !== 256 && (item.image.style.width = item.image.style.height = size + "px")), item.image.style.left = Math.round(x * size - c.x + w / 2) + "px", item.image.style.top = Math.round(y * size - c.y + h / 2) + "px";
+      }
+      for (let [key, item] of this.active) needed.has(key) || (item.image.remove(), this.active.delete(key));
+      this.refreshCredit();
+    }
+    create(key, z, x, y) {
+      let im = new Image();
+      im.draggable = !1, im.alt = "";
+      let item = { image: im, provider: 0, loaded: !1 };
+      this.active.set(key, item), this.root.append(im);
+      let generation = this.generation, setSource = (index) => {
+        item.provider = index, im.src = this.sources[index].tile(z, x, y);
+      };
+      return im.onload = () => {
+        !im.isConnected || generation !== this.generation || (item.loaded = !0, this.loaded++, (this.loaded === 1 || item.provider === 1) && this.ui.clearStatus(), this.refreshCredit());
+      }, im.onerror = () => {
+        !im.isConnected || generation !== this.generation || (item.provider + 1 < this.sources.length ? (setSource(item.provider + 1), this.loaded === 0 && this.ui.showStatus("USGS imagery unavailable; trying a backup topographic map\u2026")) : (im.style.display = "none", this.failures++, this.loaded === 0 && this.failures >= Math.min(3, this.active.size) && this.ui.showStatus(this.sources.length > 1 ? "Map images could not load from either source. Check network access, or retry." : "Map images could not load. Check network access, or retry.", !0)));
+      }, setSource(0), item;
+    }
+    /** Credit Esri if any visible loaded tile is Esri, otherwise USGS. Unchanged while nothing has loaded. */
+    refreshCredit() {
+      let any = !1, esri = !1;
+      for (let item of this.active.values()) item.loaded && (any = !0, item.provider === 1 && (esri = !0));
+      any && this.ui.setCredit(this.sources[esri ? 1 : 0]);
+    }
+  };
+
+  // src/map/routeCanvas.ts
+  function drawRoute(canvas, ctx, camera, route, position, momentsAt, w, h) {
+    let dpr = Math.min(devicePixelRatio || 1, 2);
+    if ((canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) && (canvas.width = Math.round(w * dpr), canvas.height = Math.round(h * dpr)), ctx.setTransform(dpr, 0, 0, dpr, 0, 0), ctx.clearRect(0, 0, w, h), route.points.length < 2) return;
+    let points = route.points.map((p) => camera.project(p)), line = (arr, color, weight) => {
+      ctx.beginPath(), arr.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)), ctx.strokeStyle = color, ctx.lineWidth = weight, ctx.lineCap = "round", ctx.lineJoin = "round", ctx.stroke();
+    };
+    line(points, "#ffffffcc", 10), line(points, "#386d5ec2", 6);
+    let head = camera.project(route.pointAt(position)), done = points.slice(0, route.indexAt(position) + 1);
+    done.push(head), line(done, "#132f27d9", 8), line(done, "#ea8856", 5), [...momentsAt].sort((a, b) => a - b).forEach((at, i) => {
+      let p = camera.project(route.pointAt(at));
+      ctx.beginPath(), ctx.arc(p.x, p.y, 14, 0, Math.PI * 2), ctx.fillStyle = "#fffdf6", ctx.fill(), ctx.lineWidth = 2.5, ctx.strokeStyle = "#294f3d", ctx.stroke(), ctx.fillStyle = "#294f3d", ctx.textAlign = "center", ctx.textBaseline = "middle", ctx.font = "bold 12px system-ui", ctx.fillText(String(i + 1), p.x, p.y + 0.5);
+    }), ctx.beginPath(), ctx.arc(head.x, head.y, 10, 0, Math.PI * 2), ctx.fillStyle = "#ffffff", ctx.fill(), ctx.beginPath(), ctx.arc(head.x, head.y, 6.2, 0, Math.PI * 2), ctx.fillStyle = "#e46e41", ctx.fill();
+  }
+
+  // src/editor/map.ts
+  var MARKER_HIT_PX = 22, PLACE_PX = 45, $ = (id) => document.getElementById(id), EditorMap = class {
+    constructor(hooks) {
+      __publicField(this, "hooks", hooks);
+      __publicField(this, "el", $("mapArea"));
+      __publicField(this, "canvas", $("routeCanvas"));
+      __publicField(this, "ctx", this.canvas.getContext("2d"));
+      __publicField(this, "camera", new Camera(() => ({ w: this.el.clientWidth, h: this.el.clientHeight })));
+      __publicField(this, "tiles");
+      __publicField(this, "route", null);
+      __publicField(this, "moments", () => []);
+      __publicField(this, "pointer", null);
+      __publicField(this, "creditId", "usgs");
+      this.tiles = new TileLayer($("tileLayer"), {
+        showStatus: (m, retry = !1) => {
+          $("mapStatusText").textContent = m, $("mapStatus").hidden = !1, $("retryMap").hidden = !retry;
+        },
+        clearStatus: () => {
+          $("mapStatus").hidden = !0, $("retryMap").hidden = !0;
+        },
+        setCredit: (s) => this.setCredit(s)
+      }), this.bind();
+    }
+    show(route, moments) {
+      this.route = route, this.moments = moments, this.camera.mode = "fixed", this.camera.fit(route, 0), this.render();
+    }
+    render() {
+      if (!this.route) return;
+      let w = this.el.clientWidth, h = this.el.clientHeight;
+      this.tiles.draw(this.camera.center, this.camera.zoom, w, h), drawRoute(this.canvas, this.ctx, this.camera, this.route, 0, this.moments().map((m) => m.at), w, h);
+    }
+    fit() {
+      this.route && (this.camera.fit(this.route, 0), this.render());
+    }
+    /** "See on map": centre on a point of the trail, close enough to see where it is. */
+    focus(at) {
+      this.route && (this.camera.center = this.route.pointAt(at), this.camera.zoom = Math.max(this.camera.zoom, clamp(this.camera.fitZoom + 2, 2, MAX_FIT_ZOOM)), this.render());
+    }
+    setCredit(source) {
+      if (source.id === this.creditId) return;
+      this.creditId = source.id;
+      let a = document.createElement("a");
+      a.href = source.creditUrl, a.target = "_blank", a.rel = "noopener", a.textContent = "Map: " + source.name, $("mapAttribution").replaceChildren(a);
+    }
+    /** The nearest point of the trail to a screen position: its pixel distance and its fraction along the route (V12's nearestFraction). */
+    nearest(px, py) {
+      let r = this.route;
+      if (!r || r.points.length < 2) return null;
+      let pp = r.points.map((p) => this.camera.project(p)), best = { d: 1 / 0, at: 0 };
+      for (let i = 1; i < pp.length; i++) {
+        let a = pp[i - 1], b = pp[i], dx = b.x - a.x, dy = b.y - a.y, t = clamp(((px - a.x) * dx + (py - a.y) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = Math.hypot(px - a.x - t * dx, py - a.y - t * dy);
+        d < best.d && (best = { d, at: (r.dist[i - 1] + t * (r.dist[i] - r.dist[i - 1])) / r.length });
+      }
+      return best;
+    }
+    local(e) {
+      let rect = this.el.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+    markerAt(x, y) {
+      if (!this.route) return null;
+      let best = null;
+      for (let m of this.moments()) {
+        let p = this.camera.project(this.route.pointAt(m.at)), d = Math.hypot(p.x - x, p.y - y);
+        (!best || d < best.d) && (best = { m, d });
+      }
+      return best && best.d < MARKER_HIT_PX ? best.m : null;
+    }
+    bind() {
+      let map = this.el;
+      $("zoomIn").addEventListener("click", () => {
+        this.camera.zoomBy(1), this.render();
+      }), $("zoomOut").addEventListener("click", () => {
+        this.camera.zoomBy(-1), this.render();
+      }), $("fitBtn").addEventListener("click", () => this.fit()), $("retryMap").addEventListener("click", () => {
+        this.tiles.reset(), this.render();
+      }), map.addEventListener("pointerdown", (e) => {
+        if (e.target.closest("button,a") || !this.route || e.pointerType === "mouse" && e.button !== 0) return;
+        let at = this.local(e), moment = this.hooks.placing() ? null : this.markerAt(at.x, at.y);
+        this.pointer = { x: e.clientX, y: e.clientY, center: { ...this.camera.center }, moved: !1, moment }, map.setPointerCapture(e.pointerId), moment && map.classList.add("moving");
+      }), map.addEventListener("pointermove", (e) => {
+        let p = this.pointer;
+        if (!p) return;
+        let dx = e.clientX - p.x, dy = e.clientY - p.y;
+        if (Math.hypot(dx, dy) > 5 && (p.moved = !0), p.moment) {
+          let at = this.local(e), n = this.nearest(at.x, at.y);
+          n && (p.moment.at = clamp(n.at, 2e-3, 0.998), this.render(), this.hooks.momentMoved(p.moment));
+          return;
+        }
+        !p.moved || this.hooks.placing() || (map.classList.add("dragging"), this.camera.panFrom(p.center, dx, dy), this.render());
+      }), map.addEventListener("pointerup", (e) => {
+        let p = this.pointer;
+        if (p) {
+          if (this.pointer = null, map.classList.remove("dragging", "moving"), p.moment) {
+            this.hooks.momentDropped(p.moment);
+            return;
+          }
+          if (!p.moved && this.hooks.placing()) {
+            let at = this.local(e), n = this.nearest(at.x, at.y);
+            n && n.d < PLACE_PX ? this.hooks.place(n.at) : this.hooks.placeMissed();
+          }
+        }
+      }), map.addEventListener("pointercancel", () => {
+        let p = this.pointer;
+        this.pointer = null, map.classList.remove("dragging", "moving"), p?.moment && this.hooks.momentDropped(p.moment), this.render();
+      }), map.addEventListener("wheel", (e) => {
+        this.route && (e.preventDefault(), this.camera.zoomBy(e.deltaY < 0 ? 1 : -1), this.render());
+      }, { passive: !1 }), new ResizeObserver(() => {
+        this.route && (this.camera.calcFit(this.route), this.camera.zoom = this.camera.fitZoom, this.camera.center = { ...this.camera.fitCenter }), this.render();
+      }).observe(map);
+    }
+  };
+
+  // src/editor/editor.ts
+  var $2 = (id) => {
+    let el2 = document.getElementById(id);
+    if (!el2) throw new Error("Missing element #" + id);
+    return el2;
+  }, field = (id) => $2(id), el = (tag, props = {}, ...kids) => {
+    let e = Object.assign(document.createElement(tag), props);
+    return e.append(...kids), e;
+  }, DEFAULT_TITLE = "A Little Adventure", plural = (n, word) => n + " " + word + (n === 1 ? "" : "s"), Editor = class {
+    constructor() {
+      __publicField(this, "trail", null);
+      __publicField(this, "moments", []);
+      __publicField(this, "openingPhotos", []);
+      __publicField(this, "endingPhotos", []);
+      __publicField(this, "unplaced", []);
+      __publicField(this, "camera", "follow");
+      __publicField(this, "placing", null);
+      __publicField(this, "dirty", !1);
+      __publicField(this, "previewUrl", "");
+      __publicField(this, "toastTimer", 0);
+      __publicField(this, "seq", 0);
+      __publicField(this, "map", new EditorMap({
+        placing: () => !!this.placing,
+        place: (at) => this.placeAt(at),
+        placeMissed: () => this.toast(this.placing?.kind === "photo" ? "Click closer to the trail line to place the photo." : "Click closer to the trail line to place a moment."),
+        momentMoved: (m) => this.updateCardHeading(m),
+        momentDropped: () => {
+          this.changed(), this.renderMoments();
+        }
+      }));
+      this.bind(), this.setCamera("follow"), this.renderBookend("opening"), this.renderBookend("ending"), this.dirty = !1;
+    }
+    newId(prefix) {
+      return prefix + Date.now().toString(36) + "-" + ++this.seq;
+    }
+    changed() {
+      this.dirty = !0;
+    }
+    toast(msg) {
+      let t = $2("toast");
+      t.textContent = msg, t.hidden = !1, clearTimeout(this.toastTimer), this.toastTimer = window.setTimeout(() => {
+        t.hidden = !0;
+      }, 3700);
+    }
+    // ---- 1. Find your path ----
+    setTrail(track, o) {
+      this.cancelPlacing();
+      let route = new Route(track);
+      this.trail = { track, route, ...o }, this.moments = [], this.unplaced = [], $2("stats").hidden = !1, $2("emptyState").hidden = !0, $2("distanceStat").textContent = formatMiles(route.length), $2("pointsStat").textContent = o.sourcePoints.toLocaleString(), $2("trackStatus").textContent = (o.demo ? "Sample GPX route" : o.filename || "Route loaded") + " \xB7 " + track.length.toLocaleString() + " map points";
+      for (let id of ["addStopBtn", "exportBtn"]) $2(id).disabled = !1;
+      this.map.show(route, () => this.moments), this.updateText(), this.renderMoments(), this.renderUnplaced();
+    }
+    async openFile(file) {
+      if (file)
+        try {
+          let text = await file.text();
+          if (/\.json$/i.test(file.name)) {
+            this.openDraft(text), this.toast("Your editable draft is open.");
+            return;
+          }
+          let gpx = parseGpx(text);
+          this.setTrail(gpx.points, { filename: file.name, sourcePoints: gpx.raw, demo: !1 }), field("storyTitle").value === DEFAULT_TITLE && (field("storyTitle").value = file.name.replace(/\.(gpx|xml)$/i, "").replace(/[_-]+/g, " ")), this.updateText(), this.changed(), this.toast("Trail imported. Add moments, then preview your story.");
+        } catch (e) {
+          this.toast("Could not open file: " + (e instanceof Error ? e.message : String(e)));
+        }
+    }
+    sample() {
+      let pts = decodePolyline("eg_uF|~ocSAEEK@ICMAGEKAKAEEIEM?EGKAIEECKCIEGCIGGEGAIGGGCCKGGEGCCGECGEEGKEAGIECCGGAGCEICAIECGGACCEEGGGAEEAAGECEE?GIE?CCCEEAEECCCCCEE?CEACECCAAECACGCECAACCEAG?AEACG?CCCAI?ACC?IACAG?CCCAE?KAA?ICC?EAI?E?GCEAE?G?G?CAIAECG?G?GAE?EAG?ICA?KACAECK?CCGAE?GACAIACCGAA?KCCCCCE?ECCEC?GAECCAACCCICAAEACEACEACCCA?EG??EGA@CCCEAAEAAAEE?CG@CA?GEAAAEEA?EA?EEAAACGA?CCCEECC?ACAECECCACCECGACECCGACAGCCAGCICCAEEEAGCICGEGCG?KCECKAEEKCEEGCMCICECMACEIEKCKEGAICIEGCMCIEIEGCEEICIEKEEEICIEGCCEKECGIEEEECCGECIECGEC?EEEGG?ECECCCIBCCE@E?ECGAEBE@CAEDG?CDE?EBCDC@EBGFCDEFE@ADIHCHCFCDCFCJEDCJADCHCJEDAJAJGHAJAJCHCLAHCFANAHAJCHAJCJCLAFALAJAF?LALCF?HAHALAJAJAHAJADCL@FEH@HAJCF?HAFEH?HCH@BCLCD?D?FEF?FCHAH?FADEBAFAHAD?BCFAHAFCB?FCF?DCBAFAFABEJAD?DED@DED@FCFADCFAFAD?HCDAFAD?FAHAD@HABCH@FAD?FCH@F?FCF@FAH@HAF@H?F?D?JBBCHBHAF@J@D?F?HBD?J?DDHAH?DBJ@F?BBFAH@HBB@F@F@F@J@D?B@J@B?JB@?HAD@BBH?F?FABBH?@@FAF?D?B?D?H@D?D?DCF?@AF?BAFCD@DEF@HADA@EF?HCBCD?DEJADCBCHAHC@CJEFADCFEJCDEJADCJCDEFAHGHALGF?JGD?LGFEHALADCNEFCJEJALAFELCJAHAHEJALAHAL?FENAHAL?FCN@HAJAJ@JCJ@JCF@L?L@H?H?JBH?H?HBFAJBH?LDFAFBFBF@J@HDD@H@HBF@BBFDJDD?BDJ@DHD@FB@DDDD?HDFBDDBDBBFBDB@FHB?@DFDBDD@DF@BB@DFDB@BFFBDDB@@DBDDDB@FBDD?@FBDFB@BDBBHBDD@@DDDBDBD@DDBB@BDDBBD@HD@DD@FD?@FD@BHB@F@BFDBBD@?DDDFBBDABFB?DB@BD@DBB?DDFA?BH@BAB@D@DCBBFABCB?BAF@DC@CF?FEDA@?FGBABEDABGFEBABIHEBABGDI@EFGBGFI@CBKFC@IDKDGBI?GDEFK?GDKBGBIDC?KBGDG@MBCBGDM@G@EBG@E@KDE@I@EBEBGDC?C@GBGBA@GBC@A@EBA@GBAB?@CBCB??ADA??D?@C@?D@?AFB?@BAB?DB@?B@@@D@B@BFD@DB@ABFD?BBBDBBFBDB@?FB@BF@BBBDFBB@DBFDB?DD@?D?DDD?FDB?B@D?F?FB@@D?B?F?DADBBCD@BADAF?BABCD?BCDA@CD?DCB?BEBEDEB?BEBCBGD?DI@ABGBEBC@EDE?GDC@IBA@GBEDI?EDCBI?EBEBCBG@IBC@GBG@E@IBE@GBE@GBEBEBEBKBA@GDG?GBEBGBEBIDC@E@GFE@GBIDC@IDCBE@GDE");
+      this.setTrail(pts, { filename: "Sample GPX route \xB7 Test Loop", sourcePoints: pts.length, demo: !0 }), field("storyTitle").value = "Test Loop \xB7 Sample GPX route", field("storyIntro").value = "A sample GPX route. Add photos and notes to make it your own.", field("openingTitle").value = "", field("endingTitle").value = DEFAULT_ENDING_TITLE, field("endingMessage").value = DEFAULT_ENDING_MESSAGE, this.openingPhotos = [], this.endingPhotos = [], this.renderBookend("opening"), this.renderBookend("ending"), this.moments = [
+        { id: "sample-stop-1", at: 0.28, title: "A moment along the way", caption: "Tell a little story here, add a photo, or both.", photos: [] },
+        { id: "sample-stop-2", at: 0.72, title: "Another moment along the way", caption: "Drag this stop on the map or use its location slider.", photos: [] }
+      ], this.updateText(), this.renderMoments(), this.map.render(), this.toast("Sample GPX route ready. Add moments or preview the story.");
+    }
+    // ---- drafts ----
+    openDraft(text) {
+      let raw = JSON.parse(text);
+      if (!KNOWN_FORMATS.includes(raw.format)) throw new Error("This is not a Pruyn Paths draft.");
+      let s = parseStoryText(text);
+      this.setTrail(s.track, { filename: s.filename, sourcePoints: s.sourcePoints, demo: s.demo }), field("storyTitle").value = s.title, field("storyIntro").value = s.intro, field("openingTitle").value = s.openingTitle, field("endingTitle").value = s.endingTitle, field("endingMessage").value = s.endingMessage, this.openingPhotos = s.openingPhotos, this.endingPhotos = s.endingPhotos, this.moments = s.moments, this.unplaced = Array.isArray(raw.unplacedPhotos) ? raw.unplacedPhotos.filter((p) => p && typeof p.src == "string" && p.src.startsWith("data:image/")).slice(0, 200).map((p) => ({ id: String(p.id || this.newId("unplaced-")), name: String(p.name || "Photo"), src: p.src })) : [], $2("autoAdvanceMoments").checked = s.autoAdvanceMoments, this.setCamera(s.defaultCamera ?? "follow"), Array.isArray(raw.builderOpen) && document.querySelectorAll(".builder-section").forEach((d, i) => {
+        let v = raw.builderOpen[i];
+        typeof v == "boolean" && (d.open = v);
+      }), this.renderBookend("opening"), this.renderBookend("ending"), this.updateText(), this.renderMoments(), this.renderUnplaced(), this.map.render(), this.dirty = !1;
+    }
+    /** The story in V12's draft shape, plus the author's default camera. Unplaced photos and open sections are editor state for drafts only. */
+    projectData(forExport) {
+      let t = this.trail, v = (id) => field(id).value.trim(), data = {
+        format: "pruyn-paths-project-v1",
+        version: 1,
+        title: v("storyTitle") || "An Adventure",
+        intro: v("storyIntro"),
+        openingTitle: v("openingTitle"),
+        endingTitle: v("endingTitle"),
+        endingMessage: v("endingMessage"),
+        openingPhotos: this.openingPhotos,
+        endingPhotos: this.endingPhotos,
+        track: t.track,
+        stops: this.moments.map((m) => ({ ...m, photos: [...m.photos] })),
+        camera: this.camera,
+        defaultCamera: this.camera,
+        filename: t.filename,
+        sourcePoints: t.sourcePoints,
+        demo: t.demo,
+        autoAdvanceMoments: $2("autoAdvanceMoments").checked
+      };
+      return forExport || (data.unplacedPhotos = this.unplaced, data.builderOpen = [...document.querySelectorAll(".builder-section")].map((d) => d.open)), data;
+    }
+    /** The finished storybook file, built exactly as the shipped viewer expects it. */
+    storybook() {
+      let story = parseStory(this.projectData(!0));
+      return { story, html: renderPage({ ...define_PLAYER_default, story }) };
+    }
+    download(name, text, type) {
+      let url = URL.createObjectURL(new Blob([text], { type })), a = el("a", { href: url, download: name });
+      document.body.append(a), a.click(), a.remove(), setTimeout(() => URL.revokeObjectURL(url), 3e4);
+    }
+    saveDraft() {
+      if (!this.trail) {
+        this.toast("Import a route before saving a draft.");
+        return;
+      }
+      this.download(safeBase(field("storyTitle").value) + ".pruyn.json", JSON.stringify(this.projectData(!1)), "application/json"), this.dirty = !1, this.toast("Editable draft saved to your device.");
+    }
+    exportStory() {
+      if (!this.trail) {
+        this.toast("Start with a GPX trail first.");
+        return;
+      }
+      let { story, html } = this.storybook();
+      this.download(safeBase(story.title) + ".html", html, "text/html"), this.toast("Storybook exported. Live map requires internet; route and photos are embedded.");
+    }
+    // ---- preview: the real storybook in a frame ----
+    preview(on) {
+      if (on) {
+        if (!this.trail) {
+          this.toast("Import a route or try the sample first.");
+          return;
+        }
+        this.unplaced.length && this.toast("You have " + this.unplaced.length + " unplaced photos. They won\u2019t appear in the exported story."), this.cancelPlacing(), URL.revokeObjectURL(this.previewUrl), this.previewUrl = URL.createObjectURL(new Blob([this.storybook().html], { type: "text/html" })), $2("previewFrame").src = this.previewUrl;
+      } else
+        $2("previewFrame").src = "about:blank", URL.revokeObjectURL(this.previewUrl), this.previewUrl = "";
+      document.body.classList.toggle("preview-mode", on), $2("modeText").textContent = on ? "STORY PREVIEW" : "STORY EDITOR", $2("editStage").hidden = on, $2("previewStage").hidden = !on, on || setTimeout(() => this.map.render(), 0);
+    }
+    // ---- 2 and 5. Set the scene, Sign off ----
+    updateText() {
+      let title = field("storyTitle").value.trim() || "An Adventure";
+      $2("mapTitle").textContent = this.trail ? title : "Somewhere wonderful.", $2("mapKicker").textContent = this.trail ? this.trail.demo ? "SAMPLE GPX ROUTE" : "A PRUYN PATHS FIELD REPORT" : "THE ADVENTURE AWAITS", document.title = title + " \u2014 Pruyn Paths";
+    }
+    renderBookend(which) {
+      let pics = which === "opening" ? this.openingPhotos : this.endingPhotos;
+      $2(which + "PhotoLabel").textContent = "Add " + (which === "opening" ? "opening" : "closing") + " photos (" + pics.length + ")", $2(which + "PhotoStrip").replaceChildren(...pics.map((src, i) => this.thumb(
+        src,
+        (which === "opening" ? "Opening" : "Closing") + " photo " + (i + 1),
+        "Remove " + which + " photo " + (i + 1),
+        () => {
+          pics.splice(i, 1), this.changed(), this.renderBookend(which);
+        }
+      )));
+    }
+    thumb(src, alt, removeLabel, remove) {
+      let del = el("button", { type: "button", textContent: "\xD7", title: removeLabel });
+      return del.setAttribute("aria-label", removeLabel), del.addEventListener("click", remove), el("div", { className: "photo-thumb" }, el("img", { src, alt }), del);
+    }
+    async addPhotos(files, into, done) {
+      if (files.length)
+        try {
+          let photos = await Promise.all(files.map(loadPhoto));
+          into.push(...photos), this.changed(), done(photos.length);
+        } catch (e) {
+          this.toast("Could not add photos: " + (e instanceof Error ? e.message : String(e)));
+        }
+    }
+    // ---- 3. Frame the journey ----
+    setCamera(mode) {
+      this.camera = mode;
+      for (let [id, m] of [["fixedBtn", "fixed"], ["followBtn", "follow"]])
+        $2(id).classList.toggle("active", mode === m), $2(id).setAttribute("aria-pressed", String(mode === m));
+    }
+    // ---- 4. Add moments ----
+    armMoment() {
+      let on = this.placing?.kind !== "moment";
+      this.cancelPlacing(), on && (this.placing = { kind: "moment" }, $2("mapHint").textContent = "Click the trail to add a moment \xB7 Esc to cancel", $2("mapHint").hidden = !1, this.map.el.classList.add("placing"));
+    }
+    armPhoto(photo) {
+      this.cancelPlacing(), this.placing = { kind: "photo", id: photo.id }, $2("mapHint").textContent = "Click the trail to place " + photo.name + " \xB7 Esc to cancel", $2("mapHint").hidden = !1, this.map.el.classList.add("placing"), this.toast("Click the trail to place this photo.");
+    }
+    cancelPlacing() {
+      this.placing = null, $2("mapHint").hidden = !0, this.map.el.classList.remove("placing");
+    }
+    placeAt(at) {
+      let p = this.placing;
+      if (this.cancelPlacing(), p?.kind === "moment") {
+        let m = { id: this.newId("s"), at: clampMomentAt(at), title: "A moment on the trail", caption: "", photos: [] };
+        this.moments.push(m), this.changed(), this.renderMoments(), this.map.render(), setTimeout(() => document.getElementById("title-" + m.id)?.focus(), 40), this.toast("Moment placed. Add a note, a photo, or both.");
+      } else if (p?.kind === "photo") {
+        let photo = this.unplaced.find((x) => x.id === p.id);
+        if (!photo) return;
+        this.moments.push({ id: this.newId("placed-"), at: clampMomentAt(at), title: "A moment along the way", caption: "", photos: [photo.src] }), this.unplaced = this.unplaced.filter((x) => x !== photo), this.changed(), this.renderMoments(), this.renderUnplaced(), this.map.render(), this.toast("Photo placed. You can drag its marker to fine-tune it.");
+      }
+    }
+    async bulkAddPhotos(files) {
+      let t = this.trail;
+      if (!t) {
+        this.toast("Choose a GPX route first.");
+        return;
+      }
+      let batch = files.slice(0, PHOTO_LIMITS.batch), status = $2("bulkPhotoStatus"), placed = 0, waiting = 0, failed = 0;
+      for (let i = 0; i < batch.length; i++) {
+        if (this.trail !== t) return;
+        let file = batch[i];
+        status.textContent = "Reading photo " + (i + 1) + " of " + batch.length + "\u2026";
+        try {
+          let gps = file.type === "image/jpeg" || /\.jpe?g$/i.test(file.name) ? jpegGPS(await file.arrayBuffer()) : null, src = await loadPhoto(file), match = gps ? nearestOnRoute(t.route, gps) : null;
+          match && match.distance <= PHOTO_LIMITS.matchMetres ? (addPlacedPhoto(this.moments, t.route, match.at, src, () => this.newId("batch-")), placed++) : (this.unplaced.push({ id: this.newId("unplaced-"), name: file.name, src }), waiting++);
+        } catch {
+          failed++;
+        }
+      }
+      this.trail === t && ((placed || waiting) && this.changed(), this.renderMoments(), this.renderUnplaced(), this.map.render(), status.textContent = placed + " photos placed near the GPX; " + waiting + " waiting for a location" + (failed ? " \xB7 " + failed + " could not be opened" : "") + ".", placed && this.toast("Suggested photo moments added. Review and drag their markers as needed."));
+    }
+    sorted() {
+      return this.moments.sort((a, b) => a.at - b.at);
+    }
+    cardHeading(m, i) {
+      return [el("span", { textContent: "\u2726 MOMENT " + (i + 1) + " \xB7 " + Math.round(m.at * 100) + "% ALONG" }), el("span", { textContent: formatMiles(m.at * this.trail.route.length) })];
+    }
+    updateCardHeading(m) {
+      let card = document.querySelector(`.stop-card[data-id="${CSS.escape(m.id)}"]`), i = this.sorted().indexOf(m);
+      card?.querySelector(".stop-card-title")?.replaceChildren(...this.cardHeading(m, i));
+    }
+    renderMoments() {
+      let list = $2("stopList"), ordered = this.sorted();
+      $2("stopCounter").textContent = ordered.length + " " + (ordered.length === 1 ? "MOMENT" : "MOMENTS"), list.replaceChildren(...ordered.map((m, i) => {
+        let title = el("input", { className: "input", id: "title-" + m.id, maxLength: 90, value: m.title });
+        title.addEventListener("input", () => {
+          m.title = title.value, this.changed(), this.renderUnplaced();
+        });
+        let caption = el("textarea", { className: "textarea", id: "caption-" + m.id, rows: 2, maxLength: 1200, placeholder: "A funny moment, an unexpected discovery, a tiny detour\u2026", value: m.caption });
+        caption.addEventListener("input", () => {
+          m.caption = caption.value, this.changed();
+        });
+        let slider = el("input", { className: "position-slider", type: "range", min: "0", max: "1000", value: String(Math.round(m.at * 1e3)) });
+        slider.setAttribute("aria-label", "Move moment " + (i + 1) + " along trail"), slider.addEventListener("input", () => {
+          m.at = clampMomentAt(+slider.value / 1e3), this.changed(), this.updateCardHeading(m), this.map.render();
+        }), slider.addEventListener("change", () => this.renderMoments());
+        let strip = el("div", { className: "photo-strip" }, ...m.photos.map((src, j) => this.thumb(src, "Photo " + (j + 1), "Remove photo " + (j + 1), () => {
+          m.photos.splice(j, 1), this.changed(), this.renderMoments();
+        }))), upload = el("input", { className: "photo-input", type: "file", accept: "image/*", multiple: !0 });
+        upload.setAttribute("aria-label", "Upload photos for moment " + (i + 1)), upload.addEventListener("change", () => {
+          let files = [...upload.files ?? []];
+          upload.value = "", this.addPhotos(files, m.photos, (n) => {
+            this.renderMoments(), this.toast(plural(n, "photo") + " added to this moment.");
+          });
+        });
+        let jump = el("button", { className: "inlinebtn jump", type: "button", textContent: "See on map \u2197" });
+        jump.addEventListener("click", () => this.map.focus(m.at));
+        let remove = el("button", { className: "inlinebtn remove", type: "button", textContent: "Remove moment \xD7" });
+        remove.style.color = "#a1533f", remove.addEventListener("click", () => {
+          this.moments = this.moments.filter((x) => x !== m), this.changed(), this.renderMoments(), this.renderUnplaced(), this.map.render();
+        });
+        let card = el(
+          "div",
+          { className: "stop-card" },
+          el("div", { className: "stop-card-title" }, ...this.cardHeading(m, i)),
+          el("label", { className: "field" }, el("span", { textContent: "Moment title" }), title),
+          el("label", { className: "field" }, el("span", { textContent: "Tell the story (optional)" }), caption),
+          el("label", { className: "field" }, el("span", { textContent: "Fine-tune location \xB7 drag marker on map or use slider" }), slider),
+          strip,
+          el("label", { className: "photo-upload" }, el("span", { textContent: "\uFF0B" }), el("span", { textContent: "Add photos (optional) \xB7 " + m.photos.length }), upload),
+          el("div", { className: "stop-actions" }, jump, remove)
+        );
+        return card.dataset.id = m.id, card;
+      }));
+    }
+    renderUnplaced() {
+      $2("unplacedPanel").hidden = !this.unplaced.length, $2("unplacedCount").textContent = this.unplaced.length + " waiting";
+      let ordered = this.moments.slice().sort((a, b) => a.at - b.at);
+      $2("unplacedList").replaceChildren(...this.unplaced.map((photo) => {
+        let sel = el(
+          "select",
+          {},
+          el("option", { value: "", textContent: "Attach to an existing moment\u2026" }),
+          ...ordered.map((m, i) => el("option", { value: m.id, textContent: i + 1 + ". " + (m.title || "Moment") }))
+        );
+        sel.setAttribute("aria-label", "Attach " + photo.name + " to a moment"), sel.addEventListener("change", () => {
+          let m = this.moments.find((x) => x.id === sel.value);
+          m && (m.photos.push(photo.src), this.unplaced = this.unplaced.filter((x) => x !== photo), this.changed(), this.renderMoments(), this.renderUnplaced(), this.toast("Photo attached to " + m.title));
+        });
+        let place = el("button", { type: "button", textContent: "Place on trail" });
+        place.addEventListener("click", () => this.armPhoto(photo));
+        let del = el("button", { type: "button", className: "remove-photo", textContent: "Remove" });
+        return del.addEventListener("click", () => {
+          this.unplaced = this.unplaced.filter((x) => x !== photo), this.changed(), this.renderUnplaced();
+        }), el(
+          "div",
+          { className: "unplaced-entry" },
+          el("img", { src: photo.src, alt: "Unplaced photo" }),
+          el("div", { className: "unplaced-info" }, el("div", { className: "unplaced-name", textContent: photo.name }), sel, el("div", { className: "unplaced-actions" }, place, del))
+        );
+      }));
+    }
+    // ---- events ----
+    bind() {
+      let fileInput = $2("fileInput");
+      fileInput.addEventListener("change", () => {
+        this.openFile(fileInput.files?.[0]), fileInput.value = "";
+      }), $2("sampleBtn").addEventListener("click", () => this.sample()), $2("emptySampleBtn").addEventListener("click", () => this.sample()), $2("openDraftBtn").addEventListener("click", () => fileInput.click());
+      let drop = $2("dropZone");
+      drop.addEventListener("dragover", (e) => {
+        e.preventDefault(), drop.classList.add("dragover");
+      }), drop.addEventListener("dragleave", () => drop.classList.remove("dragover")), drop.addEventListener("drop", (e) => {
+        e.preventDefault(), drop.classList.remove("dragover"), this.openFile(e.dataTransfer?.files?.[0]);
+      });
+      for (let id of ["storyTitle", "storyIntro", "openingTitle", "endingTitle", "endingMessage"]) field(id).addEventListener("input", () => {
+        this.updateText(), this.changed();
+      });
+      for (let which of ["opening", "ending"]) {
+        let input = $2(which + "PhotoInput");
+        input.addEventListener("change", () => {
+          let files = [...input.files ?? []];
+          input.value = "", this.addPhotos(
+            files,
+            which === "opening" ? this.openingPhotos : this.endingPhotos,
+            (n) => {
+              this.renderBookend(which), this.toast(plural(n, "photo") + " added to the " + (which === "opening" ? "opening" : "sign-off") + ".");
+            }
+          );
+        });
+      }
+      $2("fixedBtn").addEventListener("click", () => {
+        this.setCamera("fixed"), this.changed();
+      }), $2("followBtn").addEventListener("click", () => {
+        this.setCamera("follow"), this.changed();
+      }), $2("autoAdvanceMoments").addEventListener("change", () => this.changed());
+      let bulk = $2("bulkPhotoInput");
+      bulk.addEventListener("change", () => {
+        let files = [...bulk.files ?? []];
+        bulk.value = "", files.length && this.bulkAddPhotos(files);
+      }), $2("addStopBtn").addEventListener("click", () => this.armMoment()), $2("saveDraftBtn").addEventListener("click", () => this.saveDraft()), $2("exportBtn").addEventListener("click", () => this.exportStory()), $2("previewBtn").addEventListener("click", () => this.preview(!0)), $2("backPreviewBtn").addEventListener("click", () => this.preview(!1)), document.addEventListener("keydown", (e) => {
+        e.key === "Escape" && this.placing && this.cancelPlacing();
+      }), window.addEventListener("beforeunload", (e) => {
+        this.dirty && (e.preventDefault(), e.returnValue = "");
+      });
+    }
+  };
+  function safeBase(name) {
+    return String(name || "pruyn-paths").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "pruyn-paths";
+  }
+  function decodePolyline(poly) {
+    let lat = 0, lon = 0, i = 0, out = [], next = () => {
+      let shift = 0, result = 0, b;
+      do
+        b = poly.charCodeAt(i++) - 63, result |= (b & 31) << shift, shift += 5;
+      while (b >= 32);
+      return result & 1 ? ~(result >> 1) : result >> 1;
+    };
+    for (; i < poly.length; )
+      lat += next(), lon += next(), out.push({ lat: lat / 1e5, lon: lon / 1e5 });
+    return out;
+  }
+
+  // src/editor/main.ts
+  new Editor();
+})();
+</script>
+</body>
+</html>

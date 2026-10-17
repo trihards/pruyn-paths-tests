@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pruyn Paths photo probe</title>
+<style>
+:root{--ink:#1e291e;--muted:#5d6b5d;--line:#d9dfd3;--paper:#fff;--cream:#f6f3ea;--forest:#24493d;--bad:#a33a2a;--ok:#2d6a3e}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.45 -apple-system,system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px 16px 60px}h1{font-size:22px;margin:4px 0 2px}h2{font-size:17px;margin:26px 0 6px}
+p,li{color:var(--muted)}section{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0}
+label.pick{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;background:var(--forest);color:#fff;font-weight:600;margin:8px 0}
+label.pick input{display:none}button{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--paper);font:inherit;color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-top:1px solid var(--line);padding:4px 3px;text-align:left;vertical-align:top}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}pre{white-space:pre-wrap;font-size:12px;background:#f2f2ee;padding:8px;border-radius:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>Photo and file probe</h1>
+<p>Checks what this browser hands to a web page when you pick photos and files. Nothing leaves your phone: no upload, no server, no storage. When you're done, tap <b>Copy results</b> and paste them back. The copied text says only whether a photo had a location, never where.</p>
+
+<section>
+<h2>1. Photos, as the editor asks today</h2>
+<p>Tap, choose <b>Photo Library</b>, pick 3 to 5 photos taken outdoors with Location on (at least one normal iPhone photo, ideally one Live Photo or screenshot too).</p>
+<label class="pick">Pick photos (A)<input type="file" accept="image/*" multiple data-probe="A: accept image/*"></label>
+</section>
+
+<section>
+<h2>2. Photos, asking for HEIC by name</h2>
+<p>Same photos again, from <b>Photo Library</b>.</p>
+<label class="pick">Pick photos (B)<input type="file" accept="image/heic,image/heif,image/jpeg,.heic,.heif,.jpg,.jpeg" multiple data-probe="B: accept heic+jpeg"></label>
+</section>
+
+<section>
+<h2>3. Photos through Files</h2>
+<p>Tap, choose <b>Choose Files</b> (or Browse), go to Recents or Photos and pick the same photos if you can. Skip if it's awkward.</p>
+<label class="pick">Pick photos (C)<input type="file" multiple data-probe="C: no accept, via Files"></label>
+</section>
+
+<section>
+<h2>4. A GPX file</h2>
+<p>Pick a GPX file from Files (for example one exported from AllTrails). If it shows greyed out and can't be tapped, note that, then try button 4b.</p>
+<label class="pick">Pick GPX (as the editor does)<input type="file" accept=".gpx,.xml,.json,application/gpx+xml,application/json" data-gpx="4: editor accept"></label>
+<label class="pick">Pick GPX (4b, no filter)<input type="file" data-gpx="4b: no accept"></label>
+</section>
+
+<section>
+<h2>5. Sharing and saving</h2>
+<button id="shareBtn">Share a tiny test story</button> <button id="saveBtn">Save a tiny test story</button>
+<p>Share should open the iPhone share sheet with a file called <i>probe-story.html</i>. Save should offer a download to Files.</p>
+</section>
+
+<h2>Results</h2>
+<button id="copyBtn">Copy results</button>
+<pre id="out"></pre>
+<table id="tbl"><thead><tr><th>Set</th><th>Name / type</th><th>Format</th><th>Location</th><th>Taken</th><th>Decode</th><th>Re-encoded</th></tr></thead><tbody></tbody></table>
+</main>
+<script>
+// META-START: metadata readers (no DOM), unit-tested by investigations/iphone-photos/probe-meta.test.mjs
+function sniff(u8) {
+  if (u8[0] === 0xff && u8[1] === 0xd8) return 'JPEG';
+  if (u8[0] === 0x89 && u8[1] === 0x50) return 'PNG';
+  if (String.fromCharCode(...u8.slice(4, 8)) === 'ftyp') {
+    const brand = String.fromCharCode(...u8.slice(8, 12));
+    return /^(heic|heix|hevc|heim|heis|mif1|msf1)$/.test(brand) ? 'HEIC' : /^avi/.test(brand) ? 'AVIF' : 'ISOBMFF:' + brand;
+  }
+  if (String.fromCharCode(...u8.slice(0, 4)) === 'RIFF' && String.fromCharCode(...u8.slice(8, 12)) === 'WEBP') return 'WEBP';
+  return 'unknown';
+}
+// Offset of the TIFF header inside a JPEG's APP1 Exif segment, or -1.
+function jpegTiff(dv) {
+  let o = 2;
+  while (o + 4 <= dv.byteLength) {
+    if (dv.getUint8(o) !== 0xff) return -1;
+    const m = dv.getUint8(o + 1), len = dv.getUint16(o + 2);
+    if (m === 0xda || m === 0xd9) return -1;
+    if (m === 0xe1 && dv.getUint32(o + 4) === 0x45786966) return o + 10;
+    o += 2 + len;
+  }
+  return -1;
+}
+// Offset of the TIFF header inside a HEIC's Exif item (ISOBMFF meta/iinf/iloc), or -1.
+function heicTiff(dv) {
+  const box = (o) => { let size = dv.getUint32(o); const type = String.fromCharCode(dv.getUint8(o+4), dv.getUint8(o+5), dv.getUint8(o+6), dv.getUint8(o+7)); let h = 8;
+    if (size === 1) { size = Number(dv.getBigUint64(o + 8)); h = 16; } else if (size === 0) size = dv.byteLength - o; return { type, start: o, body: o + h, end: o + size }; };
+  const children = (from, to) => { const out = []; for (let o = from; o + 8 <= to;) { const b = box(o); if (b.end <= o || b.end > to) break; out.push(b); o = b.end; } return out; };
+  const meta = children(0, dv.byteLength).find(b => b.type === 'meta'); if (!meta) return -1;
+  const kids = children(meta.body + 4, meta.end);
+  const iinf = kids.find(b => b.type === 'iinf'), iloc = kids.find(b => b.type === 'iloc'); if (!iinf || !iloc) return -1;
+  let o = iinf.body; const iv = dv.getUint8(o); o += 4; o += iv === 0 ? 2 : 4;
+  let exifId = -1;
+  for (const e of children(o, iinf.end)) {
+    if (e.type !== 'infe') continue; const v = dv.getUint8(e.body); let p = e.body + 4; if (v < 2) continue;
+    const id = v === 2 ? dv.getUint16(p) : dv.getUint32(p); p += (v === 2 ? 2 : 4) + 2;
+    if (String.fromCharCode(dv.getUint8(p), dv.getUint8(p+1), dv.getUint8(p+2), dv.getUint8(p+3)) === 'Exif') { exifId = id; break; }
+  }
+  if (exifId < 0) return -1;
+  o = iloc.body; const lv = dv.getUint8(o); o += 4;
+  const s1 = dv.getUint8(o), s2 = dv.getUint8(o + 1); o += 2;
+  const offS = s1 >> 4, lenS = s1 & 15, baseS = s2 >> 4, idxS = lv > 0 ? s2 & 15 : 0;
+  const rd = (n) => { const v = n === 0 ? 0 : n === 4 ? dv.getUint32(o) : n === 8 ? Number(dv.getBigUint64(o)) : n === 2 ? dv.getUint16(o) : NaN; o += n; return v; };
+  const count = lv < 2 ? rd(2) : rd(4);
+  for (let i = 0; i < count; i++) {
+    const id = lv < 2 ? rd(2) : rd(4); let method = 0; if (lv > 0) method = rd(2) & 15;
+    rd(2); const base = rd(baseS), ext = rd(2); let first = null;
+    for (let k = 0; k < ext; k++) { if (idxS) rd(idxS); const eo = rd(offS), el = rd(lenS); if (!first) first = { eo, el }; }
+    if (id !== exifId) continue;
+    if (method !== 0 || !first) return -1;
+    const at = base + first.eo; if (at + 4 > dv.byteLength) return -1;
+    return at + 4 + dv.getUint32(at);
+  }
+  return -1;
+}
+// Orientation, capture time (with offset when present) and GPS from a TIFF block.
+function readTiff(dv, t) {
+  const r = { orientation: null, taken: null, offset: null, lat: null, lon: null, gpsTime: null };
+  if (t < 0 || t + 8 > dv.byteLength) return r;
+  const le = dv.getUint16(t) === 0x4949, u16 = o => dv.getUint16(t + o, le), u32 = o => dv.getUint32(t + o, le);
+  const ascii = (e) => { const n = u32(e + 4), at = n <= 4 ? e + 8 : u32(e + 8); let s = ''; for (let i = 0; i < n - 1; i++) s += String.fromCharCode(dv.getUint8(t + at + i)); return s; };
+  const rats = (e) => { const n = u32(e + 4), at = u32(e + 8), out = []; for (let i = 0; i < n; i++) out.push(u32(at + 8*i) / u32(at + 8*i + 4)); return out; };
+  const ifd = (o, fn) => { if (!o || t + o + 2 > dv.byteLength) return; const n = u16(o); for (let i = 0; i < n; i++) { const e = o + 2 + 12*i; fn(u16(e), e); } };
+  let exif = 0, gps = 0;
+  ifd(u32(4), (tag, e) => { if (tag === 0x0112) r.orientation = u16(e + 8); if (tag === 0x8769) exif = u32(e + 8); if (tag === 0x8825) gps = u32(e + 8); });
+  ifd(exif, (tag, e) => { if (tag === 0x9003) r.taken = ascii(e); if (tag === 0x9011) r.offset = ascii(e); });
+  let latRef = 'N', lonRef = 'E', lat = null, lon = null, ts = null, ds = null;
+  ifd(gps, (tag, e) => { if (tag === 1) latRef = ascii(e); if (tag === 2) lat = rats(e); if (tag === 3) lonRef = ascii(e); if (tag === 4) lon = rats(e); if (tag === 7) ts = rats(e); if (tag === 29) ds = ascii(e); });
+  const deg = a => a[0] + a[1] / 60 + a[2] / 3600;
+  if (lat && lon) { r.lat = deg(lat) * (latRef === 'S' ? -1 : 1); r.lon = deg(lon) * (lonRef === 'W' ? -1 : 1); }
+  if (ts && ds) r.gpsTime = ds + ' ' + ts.map(x => String(Math.floor(x)).padStart(2, '0')).join(':') + 'Z';
+  return r;
+}
+function readMeta(buf) {
+  const u8 = new Uint8Array(buf), dv = new DataView(buf), format = sniff(u8);
+  let t = -1;
+  try { t = format === 'JPEG' ? jpegTiff(dv) : format === 'HEIC' ? heicTiff(dv) : -1; } catch { t = -1; }
+  let m; try { m = readTiff(dv, t); } catch { m = readTiff(dv, -1); }
+  return { format, hasExif: t >= 0, ...m };
+}
+// META-END
+
+const rows = [], lines = [];
+const out = document.getElementById('out'), tbody = document.querySelector('#tbl tbody');
+const log = s => { lines.push(s); out.textContent = lines.join('\n'); };
+log('browser: ' + navigator.userAgent);
+log('webp encode: ' + (() => { const c = document.createElement('canvas'); c.width = c.height = 1; return c.toDataURL('image/webp').startsWith('data:image/webp') ? 'yes' : 'no (JPEG)'; })());
+log('share files: ' + (navigator.canShare ? (navigator.canShare({ files: [new File(['<p>x</p>'], 'probe-story.html', { type: 'text/html' })] }) ? 'yes' : 'no') : 'no Web Share'));
+if (navigator.storage?.estimate) navigator.storage.estimate().then(e => log('storage quota: ' + Math.round((e.quota || 0) / 1e6) + ' MB'));
+
+function cell(tr, text, cls) { const td = document.createElement('td'); td.textContent = text; if (cls) td.className = cls; tr.append(td); return td; }
+async function decode(file) {
+  const t0 = performance.now();
+  try {
+    const bmp = await createImageBitmap(file);
+    const c = document.createElement('canvas'), s = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    let blob = await new Promise(r => c.toBlob(r, 'image/webp', .82));
+    if (!blob || blob.type !== 'image/webp') blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .82));
+    const after = readMeta(await blob.arrayBuffer());
+    return { ok: true, w: bmp.width, h: bmp.height, ms: Math.round(performance.now() - t0), outType: blob.type, outKB: Math.round(blob.size / 1024), leak: after.lat !== null };
+  } catch (e) { return { ok: false, err: String(e && e.name || e) }; }
+}
+document.querySelectorAll('input[data-probe]').forEach(inp => inp.addEventListener('change', async () => {
+  const set = inp.dataset.probe; log(`\n${set}: ${inp.files.length} file(s)`);
+  for (const f of inp.files) {
+    const m = readMeta(await f.arrayBuffer()), d = await decode(f);
+    const tr = document.createElement('tr'); tbody.append(tr);
+    cell(tr, set[0]); cell(tr, `${f.name} · ${f.type || '(no type)'} · ${Math.round(f.size / 1024)} KB`);
+    cell(tr, m.format + (m.hasExif ? ' + EXIF' : ' no EXIF') + (m.orientation ? ` · orient ${m.orientation}` : ''));
+    cell(tr, m.lat !== null ? `yes (${m.lat.toFixed(2)}, ${m.lon.toFixed(2)})` : 'none', m.lat !== null ? 'ok' : 'bad');
+    cell(tr, (m.taken || 'none') + (m.offset ? ' ' + m.offset : ''), m.taken ? 'ok' : 'bad');
+    cell(tr, d.ok ? `${d.w}×${d.h} in ${d.ms} ms` : 'failed: ' + d.err, d.ok ? '' : 'bad');
+    cell(tr, d.ok ? `${d.outType} ${d.outKB} KB, location ${d.leak ? 'LEAKED' : 'removed'}` : '-', d.ok && d.leak ? 'bad' : '');
+    const ext = (f.name.match(/\.[^.]+$/) || [''])[0];
+    log(`  ${ext || '(no ext)'} type=${f.type || '-'} ${Math.round(f.size / 1024)}KB format=${m.format} exif=${m.hasExif ? 'y' : 'n'} gps=${m.lat !== null ? 'y' : 'n'} taken=${m.taken ? 'y' : 'n'} offset=${m.offset || '-'} gpsTime=${m.gpsTime ? 'y' : 'n'} orient=${m.orientation || '-'} lastModified=${new Date(f.lastModified).toISOString()} decode=${d.ok ? d.w + 'x' + d.h + '/' + d.ms + 'ms' : 'FAIL ' + d.err} out=${d.ok ? d.outType + (d.leak ? ' LEAK' : '') : '-'}`);
+  }
+  inp.value = '';
+}));
+document.querySelectorAll('input[data-gpx]').forEach(inp => inp.addEventListener('change', async () => {
+  const f = inp.files[0]; if (!f) return;
+  const text = await f.text(), pts = (text.match(/<(trkpt|rtept)\b/g) || []).length, times = (text.match(/<time>/g) || []).length;
+  log(`\n${inp.dataset.gpx}: ${f.name.replace(/^.*(\.[^.]+)$/, '*$1')} type=${f.type || '-'} ${Math.round(f.size / 1024)}KB points=${pts} timestamps=${times}`);
+  inp.value = '';
+}));
+const tiny = () => new File(['<!doctype html><meta charset="utf-8"><title>Probe story</title><h1>It arrived.</h1><p id="js">JavaScript is NOT running.</p><script>document.getElementById("js").textContent="JavaScript is running."<\/script>'], 'probe-story.html', { type: 'text/html' });
+document.getElementById('shareBtn').onclick = async () => {
+  try { await navigator.share({ files: [tiny()], title: 'Probe story' }); log('\nshare: completed'); }
+  catch (e) { log('\nshare: ' + (e && e.name || e)); }
+};
+document.getElementById('saveBtn').onclick = () => {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(tiny()); a.download = 'probe-story.html'; document.body.append(a); a.click(); a.remove(); log('\nsave: download started');
+};
+document.getElementById('copyBtn').onclick = async () => {
+  const text = lines.join('\n');
+  try { await navigator.clipboard.writeText(text); document.getElementById('copyBtn').textContent = 'Copied'; }
+  catch { const r = document.createRange(); r.selectNodeContents(out); getSelection().removeAllRanges(); getSelection().addRange(r); }
+};
+</script>
+</body>
+</html>

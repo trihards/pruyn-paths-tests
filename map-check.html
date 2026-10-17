@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pruyn Paths map check</title>
+<style>
+:root{--ink:#1e291e;--muted:#5d6b5d;--line:#d9dfd3;--paper:#fff;--cream:#f6f3ea;--forest:#24493d;--bad:#a33a2a;--ok:#2d6a3e}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.45 -apple-system,system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px 16px 60px}h1{font-size:22px;margin:4px 0}p{color:var(--muted)}
+button{min-height:48px;padding:0 18px;border-radius:12px;border:0;background:var(--forest);color:#fff;font:inherit;font-weight:600;margin:4px 6px 4px 0}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}.grid figure{margin:0;font-size:11px;color:var(--muted)}
+.grid img,.grid .ph{width:100%;aspect-ratio:1;display:block;background:#e3e6dc;border-radius:6px;object-fit:cover}
+pre{white-space:pre-wrap;font-size:12px;background:var(--paper);border:1px solid var(--line);padding:10px;border-radius:10px}
+</style>
+</head>
+<body>
+<main>
+<h1>Map check</h1>
+<p>Tests whether this browser, opened this way, can load the map pictures Pruyn Paths uses. It asks the two map services for
+a few tiles around the synthetic Test Loop (Rocky Mountain National Park) and records exactly what comes back. Nothing about you or
+your phone is sent anywhere. When it says <b>done</b>, tap <b>Copy results</b> and paste them back.</p>
+<button id="run">Run again</button><button id="copy">Copy results</button>
+<div class="grid" id="grid"></div>
+<pre id="out">running…</pre>
+</main>
+<script>
+// Same URL templates and loading method as src/map/tiles.ts: plain <img>, no crossorigin attribute, no headers.
+const SOURCES = {
+  usgs: (z, x, y) => `https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/${z}/${y}/${x}`,
+  esri: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/${z}/${y}/${x}`,
+};
+const LAT = 40.306, LON = -105.6; // Test Loop start
+const tileXY = (z) => { const n = 2 ** z, r = LAT * Math.PI / 180;
+  return { x: Math.floor((LON + 180) / 360 * n), y: Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n) }; };
+const CASES = [['usgs', 13], ['usgs', 15], ['usgs', 16], ['usgs', 17], ['esri', 13], ['esri', 15], ['esri', 16], ['esri', 17]];
+// Controls: an external image on an unrelated big host, and this page's own origin.
+const CONTROL_EXTERNAL = 'https://www.google.com/favicon.ico';
+
+const out = document.getElementById('out'), grid = document.getElementById('grid'), lines = [];
+const log = (s) => { lines.push(s); out.textContent = lines.join('\n'); };
+const violations = [];
+document.addEventListener('securitypolicyviolation', e => violations.push(`${e.violatedDirective} blocked ${e.blockedURI}`));
+
+function imgTest(url, figure) {
+  return new Promise(resolve => {
+    const t0 = performance.now(), im = new Image(); im.alt = ''; im.draggable = false;
+    const done = (ok) => { clearTimeout(timer); resolve({ ok, ms: Math.round(performance.now() - t0), w: im.naturalWidth, h: im.naturalHeight }); };
+    const timer = setTimeout(() => { im.onload = im.onerror = null; resolve({ ok: false, ms: 20000, timeout: true }); }, 20000);
+    im.onload = () => done(true); im.onerror = () => done(false);
+    if (figure) figure.prepend(im);
+    im.src = url;
+  });
+}
+// Three outcomes, kept apart on purpose:
+//   READABLE  the server answered and allowed us to read it: real HTTP status, type and size.
+//   HIDDEN    a cross-origin request failed, but a no-cors request reached the server (opaque reply):
+//             the server is reachable and the browser hides the status because of cross-origin rules.
+//   UNREACHABLE  both failed: blocked before or at the network (offline, DNS, filter, content blocker, policy).
+async function fetchTest(url) {
+  const t0 = performance.now(), ms = () => Math.round(performance.now() - t0) + 'ms';
+  const opts = { cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' };
+  try {
+    const r = await fetch(url, { ...opts, mode: 'cors' });
+    const b = await r.blob();
+    return { kind: 'READABLE', text: `READABLE HTTP ${r.status} ${r.headers.get('content-type') || '-'} ${b.size}B ${ms()}` };
+  } catch (e) {
+    const why = `${e && e.name}: ${e && e.message}`;
+    try {
+      const r = await fetch(url, { ...opts, mode: 'no-cors' });
+      return { kind: 'HIDDEN', text: `HIDDEN reachable, status not readable (cross-origin; response type ${r.type}); cors attempt said "${why}" ${ms()}` };
+    } catch (e2) { return { kind: 'UNREACHABLE', text: `UNREACHABLE both cors and no-cors failed ("${why}" / "${e2 && e2.name}: ${e2 && e2.message}") ${ms()}` }; }
+  }
+}
+
+async function run() {
+  lines.length = 0; violations.length = 0; grid.textContent = '';
+  log('when: ' + new Date().toISOString());
+  log('browser: ' + navigator.userAgent);
+  log(`page: protocol=${location.protocol} origin=${location.origin} secure=${window.isSecureContext} framed=${window.top !== window.self} online=${navigator.onLine}`);
+  log(`connection: ${navigator.connection ? navigator.connection.effectiveType : 'n/a'}`);
+  log('');
+  const summary = { usgs: [], esri: [] };
+  for (const [src, z] of CASES) {
+    const { x, y } = tileXY(z), url = SOURCES[src](z, x, y);
+    const fig = document.createElement('figure'); const cap = document.createElement('figcaption'); cap.textContent = `${src} z${z}`; fig.append(cap); grid.append(fig);
+    const im = await imgTest(url, fig);
+    const f = await fetchTest(url);
+    summary[src].push(`z${z} image ${im.ok ? 'OK' : 'FAIL'}, http ${f.kind}`);
+    log(`${src} z${z} ${z}/${y}/${x}\n  image: ${im.ok ? `DREW ${im.w}x${im.h} ${im.ms}ms` : im.timeout ? 'TIMEOUT 20s' : `FAILED after ${im.ms}ms (browsers give no reason for images)`}\n  http:  ${f.text}`);
+    if (!im.ok) fig.querySelector('img')?.replaceWith(Object.assign(document.createElement('div'), { className: 'ph' }));
+  }
+  const ext = await imgTest(CONTROL_EXTERNAL);
+  log(`\ncontrol external image (${new URL(CONTROL_EXTERNAL).host}): ${ext.ok ? 'loaded' : ext.timeout ? 'TIMEOUT' : 'ERROR'} ${ext.ms}ms`);
+  if (location.protocol.startsWith('http')) log('control same-origin fetch: ' + await fetchTest(location.href));
+  log(`content-security-policy violations: ${violations.length ? violations.join('; ') : 'none'}`);
+  log('\nsummary\n  usgs: ' + summary.usgs.join('; ') + '\n  esri: ' + summary.esri.join('; '));
+  log('  (expected today: usgs z13-z16 image OK, z17 FAIL with http READABLE HTTP 404; esri all OK)');
+  log('\ndone');
+}
+document.getElementById('run').onclick = run;
+document.getElementById('copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(lines.join('\n')); document.getElementById('copy').textContent = 'Copied'; }
+  catch { const r = document.createRange(); r.selectNodeContents(out); getSelection().removeAllRanges(); getSelection().addRange(r); }
+};
+run();
+</script>
+</body>
+</html>

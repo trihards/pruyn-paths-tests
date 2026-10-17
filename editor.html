@@ -39,6 +39,9 @@
 .preview-stage{position:relative;min-width:0;min-height:0;background:#e7e9de}
 .preview-stage iframe{display:block;border:0;width:100%;height:100%}
 @media(max-width:740px){.preview-mode .preview-stage{flex:1;height:100%}}
+
+/* Not V12: the autosave resume bar */
+.resume-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}.resume-bar p{flex:1 1 100%;margin:0 0 2px;font-size:14px}
 </style>
 </head>
 <body>
@@ -1285,6 +1288,31 @@ h1,h2,h3,p{margin:0}
     }
   };
 
+  // src/editor/autosave.ts
+  var DB = "pruyn-paths", STORE = "drafts", KEY = "current";
+  function open() {
+    return new Promise((resolve, reject) => {
+      let req = indexedDB.open(DB, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(STORE), req.onsuccess = () => resolve(req.result), req.onerror = () => reject(req.error);
+    });
+  }
+  async function run(mode, op) {
+    let db;
+    try {
+      db = await open();
+      let store = db.transaction(STORE, mode).objectStore(STORE);
+      return await new Promise((resolve, reject) => {
+        let req = op(store);
+        req.onsuccess = () => resolve(req.result), req.onerror = () => reject(req.error);
+      });
+    } catch {
+      return;
+    } finally {
+      db?.close();
+    }
+  }
+  var loadAutosave = () => run("readonly", (s) => s.get(KEY)), writeAutosave = (json) => run("readwrite", (s) => s.put({ json, savedAt: Date.now() }, KEY)), clearAutosave = () => run("readwrite", (s) => s.delete(KEY));
+
   // src/editor/editor.ts
   var $2 = (id) => {
     let el2 = document.getElementById(id);
@@ -1306,6 +1334,7 @@ h1,h2,h3,p{margin:0}
       __publicField(this, "previewUrl", "");
       __publicField(this, "toastTimer", 0);
       __publicField(this, "seq", 0);
+      __publicField(this, "autosaveTimer", 0);
       __publicField(this, "map", new EditorMap({
         placing: () => !!this.placing,
         place: (at) => this.placeAt(at),
@@ -1315,13 +1344,49 @@ h1,h2,h3,p{margin:0}
           this.changed(), this.renderMoments();
         }
       }));
-      this.bind(), this.setCamera("follow"), this.renderBookend("opening"), this.renderBookend("ending"), this.dirty = !1;
+      __publicField(this, "dropResume", () => {
+      });
+      __publicField(this, "resumePending", !1);
+      this.bind(), this.setCamera("follow"), this.renderBookend("opening"), this.renderBookend("ending"), this.dirty = !1, this.offerResume();
     }
     newId(prefix) {
       return prefix + Date.now().toString(36) + "-" + ++this.seq;
     }
     changed() {
-      this.dirty = !0;
+      this.dirty = !0, this.scheduleAutosave();
+    }
+    // ---- autosave (not in V12) ----
+    scheduleAutosave() {
+      clearTimeout(this.autosaveTimer), this.autosaveTimer = window.setTimeout(() => {
+        this.trail && writeAutosave(JSON.stringify(this.projectData(!1)));
+      }, 600);
+    }
+    /** Something the author would be sorry to lose: changes since the last draft download, or any moments or photos at all. */
+    hasWork() {
+      return this.resumePending ? !0 : !!this.trail && (this.dirty || this.moments.length > 0 && !this.trail.demo || this.unplaced.length > 0 || this.openingPhotos.length > 0 || this.endingPhotos.length > 0);
+    }
+    /** Ask before a GPX file, the sample or a draft replaces a story that has work in it. */
+    mayReplace() {
+      return !this.hasWork() || window.confirm("Replace the story you\u2019re working on? It will be lost unless you saved a draft.");
+    }
+    async offerResume() {
+      let saved = await loadAutosave();
+      if (!saved || this.trail) return;
+      let bar = el("div", { className: "resume-bar", role: "region" });
+      bar.setAttribute("aria-label", "Unfinished story");
+      let resume = el("button", { type: "button", className: "btn primary", textContent: "Pick up where you left off" }), fresh = el("button", { type: "button", className: "btn", textContent: "Start fresh" });
+      resume.addEventListener("click", () => {
+        this.dropResume();
+        try {
+          this.openDraft(saved.json), this.dirty = !0, this.toast("Welcome back. Your story is just as you left it.");
+        } catch {
+          clearAutosave(), this.toast("That unfinished story could not be opened.");
+        }
+      }), fresh.addEventListener("click", () => {
+        this.dropResume(), clearAutosave();
+      }), bar.append(el("p", { textContent: "You have an unfinished story on this device." }), resume, fresh), document.querySelector(".sidebar")?.prepend(bar), this.resumePending = !0, this.dropResume = () => {
+        bar.remove(), this.resumePending = !1;
+      };
     }
     toast(msg) {
       let t = $2("toast");
@@ -1340,18 +1405,20 @@ h1,h2,h3,p{margin:0}
     async openFile(file) {
       if (file)
         try {
-          let text = await file.text();
-          if (/\.json$/i.test(file.name)) {
+          let text = await file.text(), isDraft = /\.json$/i.test(file.name), gpx = isDraft ? null : parseGpx(text);
+          if (isDraft && checkDraft(text), !this.mayReplace()) return;
+          if (this.dropResume(), !gpx) {
             this.openDraft(text), this.toast("Your editable draft is open.");
             return;
           }
-          let gpx = parseGpx(text);
           this.setTrail(gpx.points, { filename: file.name, sourcePoints: gpx.raw, demo: !1 }), field("storyTitle").value === DEFAULT_TITLE && (field("storyTitle").value = file.name.replace(/\.(gpx|xml)$/i, "").replace(/[_-]+/g, " ")), this.updateText(), this.changed(), this.toast("Trail imported. Add moments, then preview your story.");
         } catch (e) {
           this.toast("Could not open file: " + (e instanceof Error ? e.message : String(e)));
         }
     }
     sample() {
+      if (!this.mayReplace()) return;
+      this.dropResume();
       let pts = decodePolyline("eg_uF|~ocSAEEK@ICMAGEKAKAEEIEM?EGKAIEECKCIEGCIGGEGAIGGGCCKGGEGCCGECGEEGKEAGIECCGGAGCEICAIECGGACCEEGGGAEEAAGECEE?GIE?CCCEEAEECCCCCEE?CEACECCAAECACGCECAACCEAG?AEACG?CCCAI?ACC?IACAG?CCCAE?KAA?ICC?EAI?E?GCEAE?G?G?CAIAECG?G?GAE?EAG?ICA?KACAECK?CCGAE?GACAIACCGAA?KCCCCCE?ECCEC?GAECCAACCCICAAEACEACEACCCA?EG??EGA@CCCEAAEAAAEE?CG@CA?GEAAAEEA?EA?EEAAACGA?CCCEECC?ACAECECCACCECGACECCGACAGCCAGCICCAEEEAGCICGEGCG?KCECKAEEKCEEGCMCICECMACEIEKCKEGAICIEGCMCIEIEGCEEICIEKEEEICIEGCCEKECGIEEEECCGECIECGEC?EEEGG?ECECCCIBCCE@E?ECGAEBE@CAEDG?CDE?EBCDC@EBGFCDEFE@ADIHCHCFCDCFCJEDCJADCHCJEDAJAJGHAJAJCHCLAHCFANAHAJCHAJCJCLAFALAJAF?LALCF?HAHALAJAJAHAJADCL@FEH@HAJCF?HAFEH?HCH@BCLCD?D?FEF?FCHAH?FADEBAFAHAD?BCFAHAFCB?FCF?DCBAFAFABEJAD?DED@DED@FCFADCFAFAD?HCDAFAD?FAHAD@HABCH@FAD?FCH@F?FCF@FAH@HAF@H?F?D?JBBCHBHAF@J@D?F?HBD?J?DDHAH?DBJ@F?BBFAH@HBB@F@F@F@J@D?B@J@B?JB@?HAD@BBH?F?FABBH?@@FAF?D?B?D?H@D?D?DCF?@AF?BAFCD@DEF@HADA@EF?HCBCD?DEJADCBCHAHC@CJEFADCFEJCDEJADCJCDEFAHGHALGF?JGD?LGFEHALADCNEFCJEJALAFELCJAHAHEJALAHAL?FENAHAL?FCN@HAJAJ@JCJ@JCF@L?L@H?H?JBH?H?HBFAJBH?LDFAFBFBF@J@HDD@H@HBF@BBFDJDD?BDJ@DHD@FB@DDDD?HDFBDDBDBBFBDB@FHB?@DFDBDD@DF@BB@DFDB@BFFBDDB@@DBDDDB@FBDD?@FBDFB@BDBBHBDD@@DDDBDBD@DDBB@BDDBBD@HD@DD@FD?@FD@BHB@F@BFDBBD@?DDDFBBDABFB?DB@BD@DBB?DDFA?BH@BAB@D@DCBBFABCB?BAF@DC@CF?FEDA@?FGBABEDABGFEBABIHEBABGDI@EFGBGFI@CBKFC@IDKDGBI?GDEFK?GDKBGBIDC?KBGDG@MBCBGDM@G@EBG@E@KDE@I@EBEBGDC?C@GBGBA@GBC@A@EBA@GBAB?@CBCB??ADA??D?@C@?D@?AFB?@BAB?DB@?B@@@D@B@BFD@DB@ABFD?BBBDBBFBDB@?FB@BF@BBBDFBB@DBFDB?DD@?D?DDD?FDB?B@D?F?FB@@D?B?F?DADBBCD@BADAF?BABCD?BCDA@CD?DCB?BEBEDEB?BEBCBGD?DI@ABGBEBC@EDE?GDC@IBA@GBEDI?EDCBI?EBEBCBG@IBC@GBG@E@IBE@GBE@GBEBEBEBKBA@GDG?GBEBGBEBIDC@E@GFE@GBIDC@IDCBE@GDE");
       this.setTrail(pts, { filename: "Sample GPX route \xB7 Test Loop", sourcePoints: pts.length, demo: !0 }), field("storyTitle").value = "Test Loop \xB7 Sample GPX route", field("storyIntro").value = "A sample GPX route. Add photos and notes to make it your own.", field("openingTitle").value = "", field("endingTitle").value = DEFAULT_ENDING_TITLE, field("endingMessage").value = DEFAULT_ENDING_MESSAGE, this.openingPhotos = [], this.endingPhotos = [], this.renderBookend("opening"), this.renderBookend("ending"), this.moments = [
         { id: "sample-stop-1", at: 0.28, title: "A moment along the way", caption: "Tell a little story here, add a photo, or both.", photos: [] },
@@ -1360,13 +1427,11 @@ h1,h2,h3,p{margin:0}
     }
     // ---- drafts ----
     openDraft(text) {
-      let raw = JSON.parse(text);
-      if (!KNOWN_FORMATS.includes(raw.format)) throw new Error("This is not a Pruyn Paths draft.");
-      let s = parseStoryText(text);
+      let raw = checkDraft(text), s = parseStoryText(text);
       this.setTrail(s.track, { filename: s.filename, sourcePoints: s.sourcePoints, demo: s.demo }), field("storyTitle").value = s.title, field("storyIntro").value = s.intro, field("openingTitle").value = s.openingTitle, field("endingTitle").value = s.endingTitle, field("endingMessage").value = s.endingMessage, this.openingPhotos = s.openingPhotos, this.endingPhotos = s.endingPhotos, this.moments = s.moments, this.unplaced = Array.isArray(raw.unplacedPhotos) ? raw.unplacedPhotos.filter((p) => p && typeof p.src == "string" && p.src.startsWith("data:image/")).slice(0, 200).map((p) => ({ id: String(p.id || this.newId("unplaced-")), name: String(p.name || "Photo"), src: p.src })) : [], $2("autoAdvanceMoments").checked = s.autoAdvanceMoments, this.setCamera(s.defaultCamera ?? "follow"), Array.isArray(raw.builderOpen) && document.querySelectorAll(".builder-section").forEach((d, i) => {
         let v = raw.builderOpen[i];
         typeof v == "boolean" && (d.open = v);
-      }), this.renderBookend("opening"), this.renderBookend("ending"), this.updateText(), this.renderMoments(), this.renderUnplaced(), this.map.render(), this.dirty = !1;
+      }), this.renderBookend("opening"), this.renderBookend("ending"), this.updateText(), this.renderMoments(), this.renderUnplaced(), this.map.render(), this.dirty = !1, this.scheduleAutosave();
     }
     /** The story in V12's draft shape, plus the author's default camera. Unplaced photos and open sections are editor state for drafts only. */
     projectData(forExport) {
@@ -1629,6 +1694,16 @@ h1,h2,h3,p{margin:0}
       });
     }
   };
+  function checkDraft(text) {
+    let raw;
+    try {
+      raw = JSON.parse(text);
+    } catch {
+      throw new Error("This file is not a Pruyn Paths story or draft.");
+    }
+    if (typeof raw != "object" || raw === null || !KNOWN_FORMATS.includes(raw.format)) throw new Error("This is not a Pruyn Paths draft.");
+    return parseStoryText(text), raw;
+  }
   function safeBase(name) {
     return String(name || "pruyn-paths").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "pruyn-paths";
   }
